@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Renata Trujillo — Portafolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── Reset ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ─── Tokens ─── */
+    :root {
+      --pink-bg:      #f5c6e0;
+      --pink-stripe:  #e8a8cc;
+      --card-bg:      #fce8f3;
+      --pink-dark:    #c472a0;
+      --pink-mid:     #d48ab8;
+      --pink-light:   #f0b8d8;
+      /* Darker text for readability */
+      --text-main:    #8a3f65;
+      --text-body:    #7a4060;
+      --text-soft:    #b06090;
+      --white:        #fff;
+
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body:    'Nunito', sans-serif;
+
+      --radius-card:  24px;
+      --radius-avatar:50%;
+
+      --shadow-card:  0 8px 40px rgba(180, 80, 130, 0.13);
+    }
+
+    /* ─── Background: striped ─── */
+    body {
+      min-height: 100vh;
+      font-family: var(--font-body);
+      background-color: var(--pink-bg);
+      background-image:
+        repeating-linear-gradient(
+          to right,
+          transparent 0px,
+          transparent 60px,
+          rgba(255,255,255,0.55) 60px,
+          rgba(255,255,255,0.55) 120px,
+          transparent 120px,
+          transparent 160px,
+          var(--pink-stripe) 160px,
+          var(--pink-stripe) 163px,
+          transparent 163px,
+          transparent 220px,
+          rgba(255,255,255,0.55) 220px,
+          rgba(255,255,255,0.55) 280px
+        );
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 20px;
+    }
+
+    /* ─── Card ─── */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      width: 100%;
+      max-width: 960px;
+      padding: 48px 52px 44px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto;
+      column-gap: 40px;
+      row-gap: 0;
+      position: relative;
+    }
+
+    /* ─── Left column ─── */
+    .card__left {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .eyebrow {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 300;
+      font-size: 1.15rem;
+      color: var(--pink-mid);
+      letter-spacing: 0.04em;
+    }
+
+    .name {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      line-height: 0.95;
+      color: var(--pink-dark);
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+
+    /* Squiggle arrow — pure CSS, echoes the Canva decoration */
+    .squiggle {
+      width: 110px;
+      height: 44px;
+      margin-top: -4px;
+      fill: none;
+      stroke: var(--pink-light);
+      stroke-width: 3;
+      stroke-linecap: round;
+      opacity: 0.85;
+    }
+
+    .bio {
+      font-family: var(--font-body);
+      font-weight: 400;
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: var(--text-body);
+      max-width: 480px;
+    }
+
+    /* ─── Skills section ─── */
+    .skills-block {
+      margin-top: 8px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: var(--pink-dark);
+      letter-spacing: 0.06em;
+      text-transform: capitalize;
+      margin-bottom: 8px;
+    }
+
+    .skills-text {
+      font-family: var(--font-body);
+      font-weight: 400;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text-body);
+      max-width: 320px;
+    }
+
+    /* ─── Software logos row ─── */
+    .software-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-top: 4px;
+    }
+
+    .software-label {
+      font-family: var(--font-body);
+      font-weight: 500;
+      font-size: 0.78rem;
+      color: var(--pink-dark);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .software-icons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .sw-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.3rem;
+      font-family: var(--font-body);
+      letter-spacing: -1px;
+      color: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    }
+    .sw-ps { background: #001e36; }
+    .sw-ai { background: #2d0f00; }
+    .sw-ps span { color: #31a8ff; }
+    .sw-ai span { color: #ff9a00; }
+
+    /* ─── Right column ─── */
+    .card__right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      min-width: 200px;
+      max-width: 240px;
+    }
+
+    /* Avatar circle */
+    .avatar-wrap {
+      width: 210px;
+      height: 210px;
+      border-radius: var(--radius-avatar);
+      border: 4px solid var(--pink-light);
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--pink-light);
+    }
+
+    .avatar-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Degree badge */
+    .degree-block {
+      text-align: center;
+    }
+
+    .degree-label {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--pink-dark);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .degree-text {
+      font-family: var(--font-body);
+      font-weight: 400;
+      font-size: 0.85rem;
+      color: var(--text-body);
+      line-height: 1.55;
+      text-transform: capitalize;
+    }
+
+    /* Social links */
+    .social-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 400;
+      transition: color 0.2s;
+    }
+
+    .social-link:hover { color: var(--pink-dark); }
+
+    .social-icon {
+      width: 22px;
+      height: 22px;
+      stroke: var(--pink-dark);
+      stroke-width: 1.8;
+      fill: none;
+      flex-shrink: 0;
+    }
+
+    /* ─── Responsive: stack on mobile ─── */
+    @media (max-width: 680px) {
+      body { padding: 28px 14px; }
+
+      .card {
+        grid-template-columns: 1fr;
+        padding: 36px 28px 36px;
+        row-gap: 32px;
+      }
+
+      .card__right {
+        max-width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        order: -1; /* avatar first on mobile */
+      }
+
+      .avatar-wrap {
+        width: 150px;
+        height: 150px;
+      }
+
+      .name {
+        font-size: clamp(2.6rem, 12vw, 4rem);
+      }
+
+      .software-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .squiggle { display: none; }
+    }
+
+    /* ─── Navbar ─── */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      background: rgba(252, 232, 243, 0.72);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(212, 138, 184, 0.25);
+    }
+
+    /* Logo navbar imagen */
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      height: 44px;
+    }
+
+    .nav-logo img {
+      height: 44px;
+      width: auto;
+      display: block;
+    }
+
+    /* Desktop links */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 1rem;
+      color: var(--text-main);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      position: relative;
+      transition: color 0.2s;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -3px;
+      width: 0;
+      height: 1.5px;
+      background: var(--pink-dark);
+      transition: width 0.25s ease;
+    }
+
+    .nav-links a:hover { color: var(--pink-dark); }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* Thin decorative divider between logo and links */
+    .nav-divider {
+      width: 1px;
+      height: 22px;
+      background: var(--pink-light);
+      opacity: 0.7;
+    }
+
+    /* ─── Hamburger (mobile only) ─── */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+
+    .nav-hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--pink-dark);
+      border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+
+    /* open state */
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Mobile drawer */
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      top: 60px;
+      left: 0;
+      right: 0;
+      background: rgba(252, 232, 243, 0.97);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(212, 138, 184, 0.2);
+      z-index: 99;
+      padding: 24px 32px 28px;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .nav-drawer.open { display: flex; }
+
+    .nav-drawer a {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 400;
+      color: var(--text-main);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(212,138,184,0.15);
+      transition: color 0.2s;
+    }
+
+    .nav-drawer a:hover { color: var(--pink-dark); }
+
+    /* Push content below fixed navbar */
+    body { padding-top: 88px; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 680px) {
+      body { padding: 80px 14px 28px; }
+
+      .navbar { padding: 0 20px; }
+
+      .nav-links, .nav-divider { display: none; }
+
+      .nav-hamburger { display: flex; }
+
+      .card {
+        grid-template-columns: 1fr;
+        padding: 36px 28px 36px;
+        row-gap: 32px;
+      }
+
+      .card__right {
+        max-width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        order: -1;
+      }
+
+      .avatar-wrap {
+        width: 150px;
+        height: 150px;
+      }
+
+      .name { font-size: clamp(2.6rem, 12vw, 4rem); }
+
+      .software-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .squiggle { display: none; }
+    }
+
+    /* ─── Zatana logo over the card ─── */
+    .zatana-logo-wrap {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .zatana-logo-wrap img {
+      height: 100px;
+      width: auto;
+      /* The file is sideways — rotate 90° clockwise to read correctly */
+      transform: rotate(90deg);
+      display: block;
+      filter: drop-shadow(0 2px 8px rgba(180,80,130,0.10));
+    }
+
+    @media (max-width: 680px) {
+      .zatana-logo-wrap img { height: 70px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAVBAR ── -->
+  <header class="navbar" role="banner">
+    <a class="nav-logo" href="#" aria-label="Inicio — Zatana">
+      <img src="ElementosPaginaWeb/Logo_Nabvar.png" alt="Logo Zatana" />
+    </a>
+
+    <div class="nav-divider" aria-hidden="true"></div>
+
+    <ul class="nav-links" role="list">
+      <li><a href="#">Sobre mí</a></li>
+      <li><a href="#">Proyectos</a></li>
+      <li><a href="#">Ilustraciones</a></li>
+      <li><a href="#">Contacto</a></li>
+    </ul>
+
+    <button
+      class="nav-hamburger"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+      aria-controls="nav-drawer"
+      onclick="toggleMenu(this)"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </header>
+
+  <!-- Mobile drawer -->
+  <nav class="nav-drawer" id="nav-drawer" aria-label="Menú principal">
+    <a href="#" onclick="closeMenu()">Sobre mí</a>
+    <a href="#" onclick="closeMenu()">Proyectos</a>
+    <a href="#" onclick="closeMenu()">Ilustraciones</a>
+    <a href="#" onclick="closeMenu()">Contacto</a>
+  </nav>
+
+  <script>
+    function toggleMenu(btn) {
+      const drawer = document.getElementById('nav-drawer');
+      const open = drawer.classList.toggle('open');
+      btn.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open);
+      btn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+    }
+    function closeMenu() {
+      const drawer = document.getElementById('nav-drawer');
+      const btn = document.querySelector('.nav-hamburger');
+      drawer.classList.remove('open');
+      btn.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-label', 'Abrir menú');
+    }
+  </script>
+
+  <!-- ── ZATANA LOGO sobre la card ── -->
+  <div class="zatana-logo-wrap" aria-hidden="true">
+    <img src="ElementosPaginaWeb/Logo.png" alt="" />
+  </div>
+
+  <main class="card" role="main">
+
+    <!-- ── LEFT ── -->
+    <section class="card__left">
+
+      <p class="eyebrow">Sobre mí</p>
+
+      <h1 class="name">Renata<br>Trujillo</h1>
+
+      <!-- Decorative squiggle arrow pointing toward headshot -->
+      <svg class="squiggle" viewBox="0 0 110 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M8 36 C30 6, 55 48, 80 18 L96 10" />
+        <path d="M88 6 L96 10 L84 16" />
+      </svg>
+
+      <p class="bio">
+        Diseñadora de vestuario con mención en alta costura, apasionada por la ilustración, la moda y la construcción de identidades visuales que cuenten historias. Cada prenda es un universo, y cada trazo, una forma de habitarlo.
+      </p>
+
+      <!-- Skills -->
+      <div class="skills-block">
+        <h2 class="section-title">Habilidades</h2>
+        <p class="skills-text">
+          Patronaje, drapeado y construcción de prendas · Ilustración de moda a mano y digital · Dirección creativa y concept boards · Gestión de proyectos de vestuario para teatro y editorial.
+        </p>
+      </div>
+
+      <!-- Software -->
+      <div class="software-row">
+        <span class="software-label">Softwares principales</span>
+        <div class="software-icons">
+          <div class="sw-icon sw-ps" title="Adobe Photoshop">
+            <span>Ps</span>
+          </div>
+          <div class="sw-icon sw-ai" title="Adobe Illustrator">
+            <span>Ai</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── RIGHT ── -->
+    <aside class="card__right" aria-label="Perfil y contacto">
+
+      <div class="avatar-wrap">
+        <img
+          src="ElementosPaginaWeb/Headshot.png"
+          alt="Ilustración de Renata Trujillo"
+          loading="eager"
+        />
+      </div>
+
+      <div class="degree-block">
+        <p class="degree-label">Título en:</p>
+        <p class="degree-text">Diseño de vestuario<br>mención alta costura</p>
+      </div>
+
+      <nav class="social-links" aria-label="Redes sociales">
+
+        <a class="social-link" href="https://www.instagram.com/zatana._" target="_blank" rel="noopener noreferrer">
+          <!-- Instagram icon -->
+          <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <circle cx="12" cy="12" r="4"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+          zatana._
+        </a>
+
+        <a class="social-link" href="mailto:renatatrujillov@gmail.com">
+          <!-- Mail icon -->
+          <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <polyline points="2,4 12,13 22,4"/>
+          </svg>
+          renatatrujillov@gmail.com
+        </a>
+
+      </nav>
+
+    </aside>
+
+  </main>
+
+</body>
+</html>
