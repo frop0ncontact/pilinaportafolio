@@ -208,9 +208,10 @@
       height: 210px;
       border-radius: var(--radius-avatar);
       border: 4px solid var(--pink-light);
-      overflow: hidden;
       flex-shrink: 0;
       background: var(--pink-light);
+      /* overflow visible so scale isn't clipped */
+      overflow: visible;
     }
 
     .avatar-wrap img {
@@ -218,6 +219,7 @@
       height: 100%;
       object-fit: cover;
       display: block;
+      border-radius: 50%;
     }
 
     /* Degree badge */
@@ -495,7 +497,7 @@
     }
 
     .zatana-logo-wrap img {
-      height: 100px;
+      height: 110px;
       width: auto;
       /* The file is sideways — rotate 90° clockwise to read correctly */
       transform: rotate(90deg);
@@ -504,7 +506,66 @@
     }
 
     @media (max-width: 680px) {
-      .zatana-logo-wrap img { height: 70px; }
+      .zatana-logo-wrap img { height: 77px; }
+    }
+
+    /* ─── Avatar hover + cursor ─── */
+    .avatar-wrap {
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .avatar-wrap:hover {
+      transform: scale(1.07);
+      box-shadow: 0 8px 28px rgba(180, 80, 130, 0.28);
+    }
+
+    /* ─── Lightbox ─── */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(90, 20, 50, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .lightbox img {
+      max-width: min(85vw, 600px);
+      max-height: 85vh;
+      border-radius: 50%;
+      border: 5px solid var(--pink-light);
+      box-shadow: 0 20px 60px rgba(90,20,50,0.4);
+      animation: lb-in 0.25s ease;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 24px;
+      right: 28px;
+      background: none;
+      border: none;
+      color: var(--pink-light);
+      font-size: 2rem;
+      cursor: pointer;
+      line-height: 1;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .lightbox-close:hover { opacity: 1; }
+
+    @keyframes lb-in {
+      from { opacity: 0; transform: scale(0.88); }
+      to   { opacity: 1; transform: scale(1); }
     }
     @media (prefers-reduced-motion: reduce) {
       * { transition: none !important; }
@@ -516,7 +577,7 @@
   <!-- ── NAVBAR ── -->
   <header class="navbar" role="banner">
     <a class="nav-logo" href="#" aria-label="Inicio — Zatana">
-      <img src="ElementosPaginaWeb/Logo_Nabvar.png" alt="Logo Zatana" />
+      <img src="ElementosPaginaWeb/Logo%20Nabvar.png" alt="Logo Zatana" />
     </a>
 
     <div class="nav-divider" aria-hidden="true"></div>
@@ -617,7 +678,7 @@
     <!-- ── RIGHT ── -->
     <aside class="card__right" aria-label="Perfil y contacto">
 
-      <div class="avatar-wrap">
+      <div class="avatar-wrap" onclick="openLightbox()" role="button" tabindex="0" aria-label="Ver ilustración en pantalla completa" onkeydown="if(event.key==='Enter')openLightbox()">
         <img
           src="ElementosPaginaWeb/Headshot.png"
           alt="Ilustración de Renata Trujillo"
@@ -656,6 +717,46 @@
     </aside>
 
   </main>
+
+  <!-- ── LIGHTBOX ── -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Ilustración ampliada" onclick="closeLightbox(event)">
+    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Cerrar">✕</button>
+    <img src="ElementosPaginaWeb/Headshot.png" alt="Ilustración de Renata Trujillo ampliada" />
+  </div>
+
+  <script>
+    /* ─ Menú hamburguesa ─ */
+    function toggleMenu(btn) {
+      const drawer = document.getElementById('nav-drawer');
+      const open = drawer.classList.toggle('open');
+      btn.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open);
+      btn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+    }
+    function closeMenu() {
+      const drawer = document.getElementById('nav-drawer');
+      const btn = document.querySelector('.nav-hamburger');
+      drawer.classList.remove('open');
+      btn.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-label', 'Abrir menú');
+    }
+
+    /* ─ Lightbox ─ */
+    function openLightbox() {
+      document.getElementById('lightbox').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox(e) {
+      if (!e || e.target !== document.querySelector('.lightbox img')) {
+        document.getElementById('lightbox').classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+  </script>
 
 </body>
 </html>
