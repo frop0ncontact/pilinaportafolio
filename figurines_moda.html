@@ -109,10 +109,6 @@
       font-family: var(--font-display); font-style: italic; font-weight: 300;
       font-size: 1rem; color: var(--pink-mid); margin-top: 6px;
     }
-    .page-header__count {
-      font-family: var(--font-body); font-size: 0.8rem;
-      color: var(--pink-mid); margin-top: 4px; letter-spacing: 0.06em;
-    }
 
     /* ── Gallery ── */
     .gallery {
@@ -141,13 +137,6 @@
       opacity: 0; transition: opacity 0.25s;
     }
     .gallery__item:hover::after { opacity: 1; }
-
-    /* ── Loading / empty states ── */
-    .gallery-state {
-      max-width: 960px; margin: 60px auto; padding: 0 20px;
-      text-align: center; color: var(--pink-mid);
-      font-family: var(--font-display); font-size: 1.1rem; font-style: italic;
-    }
 
     /* ── Lightbox ── */
     .lightbox {
@@ -209,7 +198,6 @@
 </head>
 <body>
 
-  <!-- ── NAVBAR ── -->
   <header class="navbar" role="banner">
     <a class="nav-logo" href="index.html" aria-label="Inicio — Zatana">
       <img src="ElementosPaginaWeb/Logo%20Nabvar.png" alt="Logo Zatana" />
@@ -236,21 +224,44 @@
     <a href="trabajos_analogos.html" onclick="closeMenu()">Trabajos Análogos</a>
   </nav>
 
-  <!-- ── PAGE HEADER ── -->
   <header class="page-header">
     <a class="page-header__back" href="index.html">← Volver</a>
     <h1 class="page-header__title">Figurines de Moda</h1>
     <p class="page-header__sub">Ilustración · vestuario · diseño editorial</p>
-    <p class="page-header__count" id="img-count"></p>
   </header>
 
-  <!-- ── GALLERY (se rellena con JS) ── -->
   <main>
-    <p class="gallery-state" id="gallery-state">Cargando imágenes…</p>
-    <div class="gallery" id="gallery"></div>
+    <div class="gallery">
+      <div class="gallery__item" onclick="openLightbox(0)">
+        <img src="Trabajos/Figurines_Moda/1.webp" alt="Figurín 1" loading="lazy" />
+      </div>
+      <div class="gallery__item" onclick="openLightbox(1)">
+        <img src="Trabajos/Figurines_Moda/2.webp" alt="Figurín 2" loading="lazy" />
+      </div>
+      <div class="gallery__item" onclick="openLightbox(2)">
+        <img src="Trabajos/Figurines_Moda/3.webp" alt="Figurín 3" loading="lazy" />
+      </div>
+      <div class="gallery__item" onclick="openLightbox(3)">
+        <img src="Trabajos/Figurines_Moda/4.webp" alt="Figurín 4" loading="lazy" />
+      </div>
+      <div class="gallery__item" onclick="openLightbox(4)">
+        <img src="Trabajos/Figurines_Moda/5.webp" alt="Figurín 5" loading="lazy" />
+      </div>
+      <div class="gallery__item" onclick="openLightbox(5)">
+        <img src="Trabajos/Figurines_Moda/6.webp" alt="Figurín 6" loading="lazy" />
+      </div>
+      <div class="gallery__item" onclick="openLightbox(6)">
+        <img src="Trabajos/Figurines_Moda/14.webp" alt="Figurín 14" loading="lazy" />
+      </div>
+      <div class="gallery__item" onclick="openLightbox(7)">
+        <img src="Trabajos/Figurines_Moda/304.webp" alt="Figurín 304" loading="lazy" />
+      </div>
+      <div class="gallery__item" onclick="openLightbox(8)">
+        <img src="Trabajos/Figurines_Moda/Breakdown.webp" alt="Breakdown" loading="lazy" />
+      </div>
+    </div>
   </main>
 
-  <!-- ── LIGHTBOX ── -->
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true"
     aria-label="Imagen ampliada" onclick="handleLbClick(event)">
     <button class="lightbox__close" onclick="closeLightbox()" aria-label="Cerrar">✕</button>
@@ -263,44 +274,20 @@
   </div>
 
   <script>
-    let images  = [];
+    const images = [
+      { src: 'Trabajos/Figurines_Moda/1.webp',         alt: 'Figurín 1' },
+      { src: 'Trabajos/Figurines_Moda/2.webp',         alt: 'Figurín 2' },
+      { src: 'Trabajos/Figurines_Moda/3.webp',         alt: 'Figurín 3' },
+      { src: 'Trabajos/Figurines_Moda/4.webp',         alt: 'Figurín 4' },
+      { src: 'Trabajos/Figurines_Moda/5.webp',         alt: 'Figurín 5' },
+      { src: 'Trabajos/Figurines_Moda/6.webp',         alt: 'Figurín 6' },
+      { src: 'Trabajos/Figurines_Moda/14.webp',        alt: 'Figurín 14' },
+      { src: 'Trabajos/Figurines_Moda/304.webp',       alt: 'Figurín 304' },
+      { src: 'Trabajos/Figurines_Moda/Breakdown.webp', alt: 'Breakdown' },
+    ];
+
     let current = 0;
 
-    // ── Cargar imagenes.json y construir la galería ──────────────────────────
-    fetch('imagenes.json')
-      .then(r => r.json())
-      .then(data => {
-        images = (data.figurines_moda || []).map(src => ({
-          src,
-          alt: src.split('/').pop().replace(/\.webp$/i, '').replace(/[-_]/g, ' ')
-        }));
-
-        const state   = document.getElementById('gallery-state');
-        const gallery = document.getElementById('gallery');
-        const count   = document.getElementById('img-count');
-
-        if (images.length === 0) {
-          state.textContent = 'No hay imágenes aún — ¡pronto habrá contenido!';
-          return;
-        }
-
-        state.remove();
-        count.textContent = images.length + ' imagen' + (images.length !== 1 ? 'es' : '');
-
-        images.forEach((img, i) => {
-          const div = document.createElement('div');
-          div.className = 'gallery__item';
-          div.setAttribute('onclick', `openLightbox(${i})`);
-          div.innerHTML = `<img src="${img.src}" alt="${img.alt}" loading="lazy" />`;
-          gallery.appendChild(div);
-        });
-      })
-      .catch(() => {
-        document.getElementById('gallery-state').textContent =
-          'No se pudo cargar la galería. Intenta recargar la página.';
-      });
-
-    // ── Lightbox ─────────────────────────────────────────────────────────────
     function openLightbox(i) {
       current = i; updateLb();
       document.getElementById('lightbox').classList.add('open');
@@ -330,7 +317,6 @@
       if (e.key === 'ArrowLeft')  navigate(-1);
     });
 
-    // ── Hamburguesa ──────────────────────────────────────────────────────────
     function toggleMenu(btn) {
       const drawer = document.getElementById('nav-drawer-fig');
       const open   = drawer.classList.toggle('open');
