@@ -20,13 +20,11 @@
       --pink-light:   #f0b8d8;
       --text-main:    #8a3f65;
       --text-body:    #7a4060;
-      --white:        #fff;
       --font-display: 'Cormorant Garamond', serif;
       --font-body:    'Nunito', sans-serif;
       --shadow-card:  0 8px 40px rgba(180, 80, 130, 0.13);
     }
 
-    /* ─── Background ─── */
     body {
       min-height: 100vh;
       font-family: var(--font-body);
@@ -44,291 +42,166 @@
       padding-top: 80px;
     }
 
-    /* ─── Navbar (idéntica al index) ─── */
+    /* ── Navbar ── */
     .navbar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 40px;
-      background: rgba(252, 232, 243, 0.72);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(212, 138, 184, 0.25);
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 60px; display: flex; align-items: center;
+      justify-content: space-between; padding: 0 40px;
+      background: rgba(252,232,243,0.72);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(212,138,184,0.25);
     }
-
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-      height: 44px;
-    }
-
+    .nav-logo { display: flex; align-items: center; text-decoration: none; height: 44px; }
     .nav-logo img { height: 44px; width: auto; display: block; }
-
-    .nav-divider {
-      width: 1px; height: 22px;
-      background: var(--pink-light);
-      opacity: 0.7;
-    }
-
+    .nav-divider { width: 1px; height: 22px; background: var(--pink-light); opacity: 0.7; }
     .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
-
     .nav-links a {
-      font-family: var(--font-display);
-      font-size: 1rem; font-weight: 400;
-      color: var(--text-main);
-      text-decoration: none;
-      letter-spacing: 0.05em;
-      position: relative;
-      transition: color 0.2s;
+      font-family: var(--font-display); font-size: 1rem; font-weight: 400;
+      color: var(--text-main); text-decoration: none; letter-spacing: 0.05em;
+      position: relative; transition: color 0.2s;
     }
-
-    .nav-links a.active,
-    .nav-links a:hover { color: var(--pink-dark); }
-
+    .nav-links a.active, .nav-links a:hover { color: var(--pink-dark); }
     .nav-links a::after {
-      content: '';
-      position: absolute; left: 0; bottom: -3px;
-      width: 0; height: 1.5px;
-      background: var(--pink-dark);
-      transition: width 0.25s ease;
+      content: ''; position: absolute; left: 0; bottom: -3px;
+      width: 0; height: 1.5px; background: var(--pink-dark); transition: width 0.25s ease;
     }
-
-    .nav-links a.active::after,
-    .nav-links a:hover::after { width: 100%; }
-
+    .nav-links a.active::after, .nav-links a:hover::after { width: 100%; }
     .nav-hamburger {
       display: none; flex-direction: column; gap: 5px;
       cursor: pointer; background: none; border: none; padding: 4px;
     }
-
     .nav-hamburger span {
       display: block; width: 24px; height: 2px;
       background: var(--pink-dark); border-radius: 2px;
       transition: transform 0.3s, opacity 0.3s;
     }
-
     .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
     .nav-hamburger.open span:nth-child(2) { opacity: 0; }
     .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-
     .nav-drawer {
-      display: none; position: fixed;
-      top: 60px; left: 0; right: 0;
-      background: rgba(252,232,243,0.97);
-      backdrop-filter: blur(12px);
+      display: none; position: fixed; top: 60px; left: 0; right: 0;
+      background: rgba(252,232,243,0.97); backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(212,138,184,0.2);
-      z-index: 99; padding: 24px 32px 28px;
-      flex-direction: column; gap: 20px;
+      z-index: 99; padding: 24px 32px 28px; flex-direction: column; gap: 20px;
     }
-
     .nav-drawer.open { display: flex; }
-
     .nav-drawer a {
-      font-family: var(--font-display);
-      font-size: 1.25rem; font-weight: 400;
-      color: var(--text-main); text-decoration: none;
-      letter-spacing: 0.04em; padding: 6px 0;
-      border-bottom: 1px solid rgba(212,138,184,0.15);
-      transition: color 0.2s;
+      font-family: var(--font-display); font-size: 1.25rem; font-weight: 400;
+      color: var(--text-main); text-decoration: none; letter-spacing: 0.04em;
+      padding: 6px 0; border-bottom: 1px solid rgba(212,138,184,0.15); transition: color 0.2s;
     }
-
     .nav-drawer a:hover { color: var(--pink-dark); }
 
-    /* ─── Page header ─── */
-    .page-header {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 40px 20px 0;
-      display: flex;
-      align-items: baseline;
-      gap: 16px;
-    }
-
+    /* ── Page header ── */
+    .page-header { max-width: 960px; margin: 0 auto; padding: 40px 20px 0; }
     .page-header__back {
-      font-family: var(--font-body);
-      font-size: 0.85rem;
-      color: var(--pink-mid);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: color 0.2s;
-      white-space: nowrap;
+      font-family: var(--font-body); font-size: 0.85rem; color: var(--pink-mid);
+      text-decoration: none; display: inline-flex; align-items: center;
+      gap: 6px; transition: color 0.2s; margin-bottom: 8px;
     }
-
     .page-header__back:hover { color: var(--pink-dark); }
-
     .page-header__title {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      color: var(--pink-dark);
-      text-transform: uppercase;
-      letter-spacing: -0.01em;
-      line-height: 1;
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(2rem, 5vw, 3.2rem); color: var(--pink-dark);
+      text-transform: uppercase; letter-spacing: -0.01em; line-height: 1;
     }
-
     .page-header__sub {
-      font-family: var(--font-display);
-      font-style: italic;
-      font-weight: 300;
-      font-size: 1rem;
-      color: var(--pink-mid);
-      margin-top: 6px;
+      font-family: var(--font-display); font-style: italic; font-weight: 300;
+      font-size: 1rem; color: var(--pink-mid); margin-top: 6px;
+    }
+    .page-header__count {
+      font-family: var(--font-body); font-size: 0.8rem;
+      color: var(--pink-mid); margin-top: 4px; letter-spacing: 0.06em;
     }
 
-    /* ─── Gallery grid ─── */
+    /* ── Gallery ── */
     .gallery {
-      max-width: 960px;
-      margin: 32px auto 60px;
-      padding: 0 20px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+      max-width: 960px; margin: 32px auto 60px; padding: 0 20px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
     }
-
     .gallery__item {
-      border-radius: 16px;
-      overflow: hidden;
-      background: var(--card-bg);
-      box-shadow: var(--shadow-card);
-      cursor: zoom-in;
-      position: relative;
-      aspect-ratio: 2 / 3;
+      border-radius: 16px; overflow: hidden;
+      background: var(--card-bg); box-shadow: var(--shadow-card);
+      cursor: zoom-in; position: relative; aspect-ratio: 2 / 3;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-
     .gallery__item:hover {
       transform: translateY(-4px) scale(1.02);
       box-shadow: 0 16px 48px rgba(180,80,130,0.22);
     }
-
     .gallery__item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
+      width: 100%; height: 100%; object-fit: cover; display: block;
       transition: transform 0.4s ease;
     }
-
     .gallery__item:hover img { transform: scale(1.04); }
-
-    /* Overlay label on hover */
     .gallery__item::after {
-      content: '🔍';
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.8rem;
-      background: rgba(196, 114, 160, 0.12);
-      opacity: 0;
-      transition: opacity 0.25s;
+      content: '🔍'; position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; background: rgba(196,114,160,0.12);
+      opacity: 0; transition: opacity 0.25s;
     }
-
     .gallery__item:hover::after { opacity: 1; }
 
-    /* ─── Lightbox ─── */
+    /* ── Loading / empty states ── */
+    .gallery-state {
+      max-width: 960px; margin: 60px auto; padding: 0 20px;
+      text-align: center; color: var(--pink-mid);
+      font-family: var(--font-display); font-size: 1.1rem; font-style: italic;
+    }
+
+    /* ── Lightbox ── */
     .lightbox {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 200;
-      background: rgba(90, 20, 50, 0.80);
-      backdrop-filter: blur(10px);
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(90,20,50,0.80); backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      align-items: center;
-      justify-content: center;
-      cursor: zoom-out;
+      align-items: center; justify-content: center; cursor: zoom-out;
     }
-
     .lightbox.open { display: flex; }
-
     .lightbox__img {
-      max-width: min(88vw, 700px);
-      max-height: 88vh;
-      border-radius: 16px;
-      border: 4px solid var(--pink-light);
+      max-width: min(88vw, 700px); max-height: 88vh;
+      border-radius: 16px; border: 4px solid var(--pink-light);
       box-shadow: 0 24px 80px rgba(90,20,50,0.5);
-      object-fit: contain;
-      animation: lb-in 0.25s ease;
-      cursor: default;
+      object-fit: contain; animation: lb-in 0.25s ease; cursor: default;
     }
-
-    /* prev / next arrows */
     .lightbox__nav {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(252,232,243,0.18);
-      border: 1.5px solid var(--pink-light);
-      color: var(--pink-light);
-      font-size: 1.6rem;
-      width: 48px; height: 48px;
-      border-radius: 50%;
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(252,232,243,0.18); border: 1.5px solid var(--pink-light);
+      color: var(--pink-light); font-size: 1.6rem;
+      width: 48px; height: 48px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-      backdrop-filter: blur(4px);
+      cursor: pointer; transition: background 0.2s, color 0.2s; backdrop-filter: blur(4px);
     }
-
     .lightbox__nav:hover { background: rgba(252,232,243,0.4); color: var(--pink-dark); }
     .lightbox__prev { left: 20px; }
     .lightbox__next { right: 20px; }
-
     .lightbox__close {
-      position: absolute;
-      top: 20px; right: 24px;
-      background: none; border: none;
-      color: var(--pink-light);
-      font-size: 2rem;
-      cursor: pointer;
-      opacity: 0.8;
-      transition: opacity 0.2s;
-      line-height: 1;
+      position: absolute; top: 20px; right: 24px;
+      background: none; border: none; color: var(--pink-light);
+      font-size: 2rem; cursor: pointer; opacity: 0.8;
+      transition: opacity 0.2s; line-height: 1;
     }
-
     .lightbox__close:hover { opacity: 1; }
-
     .lightbox__counter {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-family: var(--font-body);
-      font-size: 0.8rem;
-      color: rgba(240,184,216,0.7);
-      letter-spacing: 0.1em;
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+      font-family: var(--font-body); font-size: 0.8rem;
+      color: rgba(240,184,216,0.7); letter-spacing: 0.1em;
     }
-
     @keyframes lb-in {
       from { opacity: 0; transform: scale(0.90); }
       to   { opacity: 1; transform: scale(1); }
     }
 
-    /* ─── Responsive ─── */
+    /* ── Responsive ── */
     @media (max-width: 680px) {
       .navbar { padding: 0 20px; }
       .nav-links, .nav-divider { display: none; }
       .nav-hamburger { display: flex; }
-
       .gallery { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-
       .lightbox__nav { width: 38px; height: 38px; font-size: 1.2rem; }
       .lightbox__prev { left: 8px; }
       .lightbox__next { right: 8px; }
     }
-
-    @media (max-width: 400px) {
-      .gallery { grid-template-columns: 1fr; }
-    }
-
+    @media (max-width: 400px) { .gallery { grid-template-columns: 1fr; } }
     @media (prefers-reduced-motion: reduce) {
       * { transition: none !important; animation: none !important; }
     }
@@ -341,159 +214,133 @@
     <a class="nav-logo" href="index.html" aria-label="Inicio — Zatana">
       <img src="ElementosPaginaWeb/Logo%20Nabvar.png" alt="Logo Zatana" />
     </a>
-
     <div class="nav-divider" aria-hidden="true"></div>
-
     <ul class="nav-links" role="list">
       <li><a href="index.html">Sobre mí</a></li>
       <li><a href="figurines_moda.html" class="active">Figurines</a></li>
       <li><a href="fichas_tecnicas.html">Fichas Técnicas</a></li>
+      <li><a href="colecciones.html">Colecciones</a></li>
       <li><a href="trabajos_analogos.html">Análogos</a></li>
     </ul>
-
-    <button
-      class="nav-hamburger"
-      aria-label="Abrir menú"
-      aria-expanded="false"
-      aria-controls="nav-drawer-fig"
-      onclick="toggleMenu(this)"
-    >
+    <button class="nav-hamburger" aria-label="Abrir menú" aria-expanded="false"
+      aria-controls="nav-drawer-fig" onclick="toggleMenu(this)">
       <span></span><span></span><span></span>
     </button>
   </header>
 
   <nav class="nav-drawer" id="nav-drawer-fig" aria-label="Menú principal">
-    <a href="index.html" onclick="closeMenu()">Sobre mí</a>
-    <a href="figurines_moda.html" onclick="closeMenu()">Figurines de Moda</a>
-    <a href="fichas_tecnicas.html" onclick="closeMenu()">Fichas Técnicas</a>
+    <a href="index.html"             onclick="closeMenu()">Sobre mí</a>
+    <a href="figurines_moda.html"    onclick="closeMenu()">Figurines de Moda</a>
+    <a href="fichas_tecnicas.html"   onclick="closeMenu()">Fichas Técnicas</a>
+    <a href="colecciones.html"       onclick="closeMenu()">Colecciones</a>
     <a href="trabajos_analogos.html" onclick="closeMenu()">Trabajos Análogos</a>
   </nav>
 
   <!-- ── PAGE HEADER ── -->
   <header class="page-header">
-    <div>
-      <a class="page-header__back" href="index.html">← Volver</a>
-      <h1 class="page-header__title">Figurines de Moda</h1>
-      <p class="page-header__sub">Ilustración · vestuario · diseño editorial</p>
-    </div>
+    <a class="page-header__back" href="index.html">← Volver</a>
+    <h1 class="page-header__title">Figurines de Moda</h1>
+    <p class="page-header__sub">Ilustración · vestuario · diseño editorial</p>
+    <p class="page-header__count" id="img-count"></p>
   </header>
 
-  <!-- ── GALLERY ── -->
+  <!-- ── GALLERY (se rellena con JS) ── -->
   <main>
-    <div class="gallery" id="gallery">
-
-      <div class="gallery__item" onclick="openLightbox(0)">
-        <img src="Trabajos/Figurines%20Moda/1.webp" alt="Figurín de moda 1" loading="lazy" />
-      </div>
-
-      <div class="gallery__item" onclick="openLightbox(1)">
-        <img src="Trabajos/Figurines%20Moda/2.webp" alt="Figurín de moda 2" loading="lazy" />
-      </div>
-
-      <div class="gallery__item" onclick="openLightbox(2)">
-        <img src="Trabajos/Figurines%20Moda/3.webp" alt="Figurín de moda 3" loading="lazy" />
-      </div>
-
-      <div class="gallery__item" onclick="openLightbox(3)">
-        <img src="Trabajos/Figurines%20Moda/4.webp" alt="Figurín de moda 4" loading="lazy" />
-      </div>
-
-      <div class="gallery__item" onclick="openLightbox(4)">
-        <img src="Trabajos/Figurines%20Moda/5.webp" alt="Figurín de moda 5" loading="lazy" />
-      </div>
-
-      <div class="gallery__item" onclick="openLightbox(5)">
-        <img src="Trabajos/Figurines%20Moda/6.webp" alt="Figurín de moda 6" loading="lazy" />
-      </div>
-
-      <div class="gallery__item" onclick="openLightbox(6)">
-        <img src="Trabajos/Figurines%20Moda/14.webp" alt="Figurín de moda 14" loading="lazy" />
-      </div>
-
-      <div class="gallery__item" onclick="openLightbox(7)">
-        <img src="Trabajos/Figurines%20Moda/304-sin-titulo.webp" alt="Figurín sin título" loading="lazy" />
-      </div>
-
-      <div class="gallery__item" onclick="openLightbox(8)">
-        <img src="Trabajos/Figurines%20Moda/Breakdown.pdf.webp" alt="Breakdown de figurines" loading="lazy" />
-      </div>
-
-    </div>
+    <p class="gallery-state" id="gallery-state">Cargando imágenes…</p>
+    <div class="gallery" id="gallery"></div>
   </main>
 
   <!-- ── LIGHTBOX ── -->
-  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Imagen ampliada" onclick="handleLbClick(event)">
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true"
+    aria-label="Imagen ampliada" onclick="handleLbClick(event)">
     <button class="lightbox__close" onclick="closeLightbox()" aria-label="Cerrar">✕</button>
-    <button class="lightbox__nav lightbox__prev" onclick="navigate(-1); event.stopPropagation();" aria-label="Anterior">‹</button>
+    <button class="lightbox__nav lightbox__prev"
+      onclick="navigate(-1); event.stopPropagation();" aria-label="Anterior">‹</button>
     <img class="lightbox__img" id="lb-img" src="" alt="" />
-    <button class="lightbox__nav lightbox__next" onclick="navigate(1); event.stopPropagation();" aria-label="Siguiente">›</button>
+    <button class="lightbox__nav lightbox__next"
+      onclick="navigate(1); event.stopPropagation();" aria-label="Siguiente">›</button>
     <span class="lightbox__counter" id="lb-counter"></span>
   </div>
 
   <script>
-    /* ─ Imágenes de la galería ─ */
-    const images = [
-      { src: 'Trabajos/Figurines%20Moda/1.webp',               alt: 'Figurín de moda 1' },
-      { src: 'Trabajos/Figurines%20Moda/2.webp',               alt: 'Figurín de moda 2' },
-      { src: 'Trabajos/Figurines%20Moda/3.webp',               alt: 'Figurín de moda 3' },
-      { src: 'Trabajos/Figurines%20Moda/4.webp',               alt: 'Figurín de moda 4' },
-      { src: 'Trabajos/Figurines%20Moda/5.webp',               alt: 'Figurín de moda 5' },
-      { src: 'Trabajos/Figurines%20Moda/6.webp',               alt: 'Figurín de moda 6' },
-      { src: 'Trabajos/Figurines%20Moda/14.webp',              alt: 'Figurín de moda 14' },
-      { src: 'Trabajos/Figurines%20Moda/304-sin-titulo.webp',  alt: 'Figurín sin título' },
-      { src: 'Trabajos/Figurines%20Moda/Breakdown.pdf.webp',   alt: 'Breakdown de figurines' },
-    ];
-
+    let images  = [];
     let current = 0;
 
-    function openLightbox(index) {
-      current = index;
-      updateLb();
+    // ── Cargar imagenes.json y construir la galería ──────────────────────────
+    fetch('imagenes.json')
+      .then(r => r.json())
+      .then(data => {
+        images = (data.figurines_moda || []).map(src => ({
+          src,
+          alt: src.split('/').pop().replace(/\.webp$/i, '').replace(/[-_]/g, ' ')
+        }));
+
+        const state   = document.getElementById('gallery-state');
+        const gallery = document.getElementById('gallery');
+        const count   = document.getElementById('img-count');
+
+        if (images.length === 0) {
+          state.textContent = 'No hay imágenes aún — ¡pronto habrá contenido!';
+          return;
+        }
+
+        state.remove();
+        count.textContent = images.length + ' imagen' + (images.length !== 1 ? 'es' : '');
+
+        images.forEach((img, i) => {
+          const div = document.createElement('div');
+          div.className = 'gallery__item';
+          div.setAttribute('onclick', `openLightbox(${i})`);
+          div.innerHTML = `<img src="${img.src}" alt="${img.alt}" loading="lazy" />`;
+          gallery.appendChild(div);
+        });
+      })
+      .catch(() => {
+        document.getElementById('gallery-state').textContent =
+          'No se pudo cargar la galería. Intenta recargar la página.';
+      });
+
+    // ── Lightbox ─────────────────────────────────────────────────────────────
+    function openLightbox(i) {
+      current = i; updateLb();
       document.getElementById('lightbox').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
-
     function closeLightbox() {
       document.getElementById('lightbox').classList.remove('open');
       document.body.style.overflow = '';
     }
-
     function handleLbClick(e) {
       if (e.target === document.getElementById('lightbox')) closeLightbox();
     }
-
     function navigate(dir) {
       current = (current + dir + images.length) % images.length;
       updateLb();
     }
-
     function updateLb() {
-      const img = document.getElementById('lb-img');
-      img.src = images[current].src;
-      img.alt = images[current].alt;
+      document.getElementById('lb-img').src = images[current].src;
+      document.getElementById('lb-img').alt = images[current].alt;
       document.getElementById('lb-counter').textContent =
         (current + 1) + ' / ' + images.length;
     }
-
     document.addEventListener('keydown', e => {
-      const lb = document.getElementById('lightbox');
-      if (!lb.classList.contains('open')) return;
-      if (e.key === 'Escape')      closeLightbox();
-      if (e.key === 'ArrowRight')  navigate(1);
-      if (e.key === 'ArrowLeft')   navigate(-1);
+      if (!document.getElementById('lightbox').classList.contains('open')) return;
+      if (e.key === 'Escape')     closeLightbox();
+      if (e.key === 'ArrowRight') navigate(1);
+      if (e.key === 'ArrowLeft')  navigate(-1);
     });
 
-    /* ─ Hamburguesa ─ */
+    // ── Hamburguesa ──────────────────────────────────────────────────────────
     function toggleMenu(btn) {
       const drawer = document.getElementById('nav-drawer-fig');
-      const open = drawer.classList.toggle('open');
+      const open   = drawer.classList.toggle('open');
       btn.classList.toggle('open', open);
       btn.setAttribute('aria-expanded', open);
       btn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
     }
     function closeMenu() {
       const drawer = document.getElementById('nav-drawer-fig');
-      const btn = document.querySelector('.nav-hamburger');
+      const btn    = document.querySelector('.nav-hamburger');
       drawer.classList.remove('open');
       btn.classList.remove('open');
       btn.setAttribute('aria-expanded', 'false');
