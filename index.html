@@ -200,19 +200,27 @@
       flex-direction: column;
       align-items: center;
       gap: 18px;
-      min-width: 200px;
-      max-width: 240px;
+      min-width: 260px;
+      max-width: 320px;
     }
 
     /* Avatar circle */
     .avatar-wrap {
-      width: 210px;
-      height: 210px;
+      width: 257px;
+      height: 257px;
       border-radius: var(--radius-avatar);
       border: none;
       flex-shrink: 0;
       background: transparent;
       overflow: visible;
+      /* sin padding — el borde ya está dibujado en la imagen */
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .avatar-wrap:hover {
+      transform: scale(1.07);
+      box-shadow: 0 8px 28px rgba(180, 80, 130, 0.28);
     }
 
     .avatar-wrap img {
@@ -507,17 +515,6 @@
       .zatana-logo-wrap img { height: 120px; }
     }
 
-    /* ─── Avatar hover + cursor ─── */
-    .avatar-wrap {
-      cursor: pointer;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .avatar-wrap:hover {
-      transform: scale(1.07);
-      box-shadow: 0 8px 28px rgba(180, 80, 130, 0.28);
-    }
-
     /* ─── Lightbox ─── */
     .lightbox {
       display: none;
@@ -766,6 +763,8 @@
       background: var(--card-bg);
       border-bottom: 1px solid var(--pink-light);
       flex-shrink: 0;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .cv-modal__toolbar span {
@@ -779,7 +778,39 @@
     .cv-modal__actions {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+    }
+
+    /* Zoom buttons */
+    .cv-zoom-btn {
+      background: var(--card-bg);
+      border: 1.5px solid var(--pink-mid);
+      border-radius: 8px;
+      color: var(--pink-dark);
+      font-size: 1.1rem;
+      font-weight: 700;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .cv-zoom-btn:hover {
+      background: var(--pink-dark);
+      color: white;
+    }
+
+    .cv-zoom-level {
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--pink-mid);
+      min-width: 36px;
+      text-align: center;
     }
 
     .cv-modal__download {
@@ -1041,14 +1072,17 @@
   <div class="cv-modal" id="cv-modal" role="dialog" aria-modal="true" aria-label="Curriculum Vitae" onclick="handleCvClick(event)">
     <div class="cv-modal__inner">
       <div class="cv-modal__toolbar">
-        <span>Curriculum Vitae — Renata Trujillo</span>
+        <span>CV — Renata Trujillo</span>
         <div class="cv-modal__actions">
+          <button class="cv-zoom-btn" onclick="cvZoom(-1)" aria-label="Reducir">−</button>
+          <span class="cv-zoom-level" id="cv-zoom-label">100%</span>
+          <button class="cv-zoom-btn" onclick="cvZoom(1)" aria-label="Ampliar">+</button>
           <a class="cv-modal__download" href="Cv%20Renata%20Trujillo.svg" download="CV_Renata_Trujillo.svg">⬇ Descargar</a>
           <button class="cv-modal__close" onclick="closeCV()" aria-label="Cerrar">✕</button>
         </div>
       </div>
-      <div class="cv-modal__body">
-        <img src="Cv%20Renata%20Trujillo.svg" alt="Curriculum Vitae de Renata Trujillo" />
+      <div class="cv-modal__body" id="cv-body">
+        <img src="Cv%20Renata%20Trujillo.svg" alt="Curriculum Vitae de Renata Trujillo" id="cv-img" />
       </div>
     </div>
   </div>
@@ -1078,6 +1112,11 @@
     }
 
     /* ─ CV Modal ─ */
+    let cvScale = 1;
+    const CV_MIN = 0.5;
+    const CV_MAX = 3;
+    const CV_STEP = 0.25;
+
     function openCV() {
       document.getElementById('cv-modal').classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -1088,6 +1127,13 @@
     }
     function handleCvClick(e) {
       if (e.target === document.getElementById('cv-modal')) closeCV();
+    }
+    function cvZoom(dir) {
+      cvScale = Math.min(CV_MAX, Math.max(CV_MIN, cvScale + dir * CV_STEP));
+      const img = document.getElementById('cv-img');
+      img.style.width = (cvScale * 100) + '%';
+      img.style.maxWidth = (cvScale * 680) + 'px';
+      document.getElementById('cv-zoom-label').textContent = Math.round(cvScale * 100) + '%';
     }
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
