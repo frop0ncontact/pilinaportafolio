@@ -87,12 +87,12 @@
     }
 
     .eyebrow {
-      font-family: var(--font-display);
-      font-style: italic;
-      font-weight: 300;
-      font-size: 1.15rem;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.85rem;
       color: var(--pink-mid);
-      letter-spacing: 0.04em;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
     }
 
     .name {
@@ -189,8 +189,10 @@
     }
     .sw-ps { background: #001e36; }
     .sw-ai { background: #2d0f00; }
+    .sw-md { background: #1a3a5c; }
     .sw-ps span { color: #31a8ff; }
     .sw-ai span { color: #ff9a00; }
+    .sw-md span { color: #a8d8ff; }
 
     /* ─── Right column ─── */
     .card__right {
@@ -534,13 +536,16 @@
       display: flex;
     }
 
+    .lightbox__img,
     .lightbox img {
-      max-width: min(85vw, 600px);
+      max-width: min(88vw, 600px);
       max-height: 85vh;
-      border-radius: 50%;
-      border: 5px solid var(--pink-light);
-      box-shadow: 0 20px 60px rgba(90,20,50,0.4);
+      border-radius: 0;
+      border: none;
+      box-shadow: none;
+      object-fit: contain;
       animation: lb-in 0.25s ease;
+      cursor: default;
     }
 
     .lightbox-close {
@@ -762,21 +767,13 @@
     <!-- ── LEFT ── -->
     <section class="card__left">
 
-      <p class="eyebrow">Sobre mí</p>
-
       <h1 class="name">Renata<br>Trujillo</h1>
 
-      <p class="bio">
-        Diseñadora de vestuario con mención en alta costura, apasionada por la ilustración, la moda y la construcción de identidades visuales que cuenten historias. Cada prenda es un universo, y cada trazo, una forma de habitarlo.
-      </p>
+      <p class="eyebrow">Sobre mí</p>
 
-      <!-- Skills -->
-      <div class="skills-block">
-        <h2 class="section-title">Habilidades</h2>
-        <p class="skills-text">
-          Patronaje, drapeado y construcción de prendas · Ilustración de moda a mano y digital · Dirección creativa y concept boards · Gestión de proyectos de vestuario para teatro y editorial.
-        </p>
-      </div>
+      <p class="bio">
+        Diseñadora de vestuario enfocada en el desarrollo creativo y conceptual de colecciones, con especial interés en las etapas previas al proceso de diseño, como la investigación, conceptualización y bocetaje. Mi trabajo se centra en la exploración de materialidades, técnicas y soluciones adaptables que permitan transformar ideas en propuestas coherentes, funcionales y estéticamente armónicas. Busco crear piezas con identidad propia, donde cada diseño dialogue con la esencia de quien lo utiliza, integrando expresión personal, innovación y una mirada consciente sobre la relación entre la prenda y el usuario.
+      </p>
 
       <!-- Software -->
       <div class="software-row">
@@ -787,6 +784,9 @@
           </div>
           <div class="sw-icon sw-ai" title="Adobe Illustrator">
             <span>Ai</span>
+          </div>
+          <div class="sw-icon sw-md" title="Modaris (Lectra)">
+            <span>Md</span>
           </div>
         </div>
       </div>
@@ -806,13 +806,19 @@
 
       <div class="degree-block">
         <p class="degree-label">Título en:</p>
-        <p class="degree-text">Diseño de vestuario<br>mención alta costura</p>
+        <p class="degree-text">Diseño de vestuario<br>mención alta costura<br><small style="font-size:0.78rem;opacity:0.8;">AIEP · 2022–2026</small></p>
       </div>
 
       <nav class="social-links" aria-label="Redes sociales">
 
+        <a class="social-link" href="tel:+56979971173">
+          <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.86 19.86 0 0 1 3.09 4.18 2 2 0 0 1 5.09 2h3a2 2 0 0 1 2 1.72 12.05 12.05 0 0 0 .66 2.68 2 2 0 0 1-.45 2.11L9.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.05 12.05 0 0 0 2.68.66A2 2 0 0 1 22 16.92z"/>
+          </svg>
+          +56 9 7997 1173
+        </a>
+
         <a class="social-link" href="https://www.instagram.com/zatana._" target="_blank" rel="noopener noreferrer">
-          <!-- Instagram icon -->
           <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
             <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
             <circle cx="12" cy="12" r="4"/>
@@ -822,7 +828,6 @@
         </a>
 
         <a class="social-link" href="mailto:renatatrujillov@gmail.com">
-          <!-- Mail icon -->
           <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
             <rect x="2" y="4" width="20" height="16" rx="2"/>
             <polyline points="2,4 12,13 22,4"/>
