@@ -696,6 +696,142 @@
       .nav-card__arrow   { margin-left: auto; }
     }
 
+    /* ─── Botón CV ─── */
+    .cv-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 16px;
+      background: var(--pink-dark);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 14px rgba(196,114,160,0.3);
+      margin-top: 4px;
+    }
+
+    .cv-btn:hover {
+      background: var(--text-main);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(196,114,160,0.4);
+    }
+
+    .cv-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* ─── Modal CV ─── */
+    .cv-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(60, 10, 35, 0.80);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .cv-modal.open { display: flex; }
+
+    .cv-modal__inner {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 780px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 32px 80px rgba(60,10,35,0.45);
+      animation: lb-in 0.25s ease;
+    }
+
+    .cv-modal__toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--pink-light);
+      flex-shrink: 0;
+    }
+
+    .cv-modal__toolbar span {
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--pink-dark);
+      letter-spacing: 0.04em;
+    }
+
+    .cv-modal__actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cv-modal__download {
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--pink-dark);
+      text-decoration: none;
+      border: 1.5px solid var(--pink-mid);
+      border-radius: 999px;
+      padding: 5px 14px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .cv-modal__download:hover {
+      background: var(--pink-dark);
+      color: white;
+    }
+
+    .cv-modal__close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--pink-dark);
+      cursor: pointer;
+      line-height: 1;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+      padding: 2px 6px;
+    }
+
+    .cv-modal__close:hover { opacity: 1; }
+
+    .cv-modal__body {
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px;
+      background: #f0f0f0;
+    }
+
+    .cv-modal__body img {
+      width: 100%;
+      max-width: 680px;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      display: block;
+    }
+
     /* ─── Reduced motion ─── */
       * { transition: none !important; }
     }
@@ -837,6 +973,17 @@
 
       </nav>
 
+      <!-- Botón CV -->
+      <button class="cv-btn" onclick="openCV()" aria-label="Ver curriculum vitae">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="9" y1="13" x2="15" y2="13"/>
+          <line x1="9" y1="17" x2="13" y2="17"/>
+        </svg>
+        Ver mi CV
+      </button>
+
     </aside>
 
   </main>
@@ -890,6 +1037,22 @@
 
   </nav>
 
+  <!-- ── MODAL CV ── -->
+  <div class="cv-modal" id="cv-modal" role="dialog" aria-modal="true" aria-label="Curriculum Vitae" onclick="handleCvClick(event)">
+    <div class="cv-modal__inner">
+      <div class="cv-modal__toolbar">
+        <span>Curriculum Vitae — Renata Trujillo</span>
+        <div class="cv-modal__actions">
+          <a class="cv-modal__download" href="Cv%20Renata%20Trujillo.svg" download="CV_Renata_Trujillo.svg">⬇ Descargar</a>
+          <button class="cv-modal__close" onclick="closeCV()" aria-label="Cerrar">✕</button>
+        </div>
+      </div>
+      <div class="cv-modal__body">
+        <img src="Cv%20Renata%20Trujillo.svg" alt="Curriculum Vitae de Renata Trujillo" />
+      </div>
+    </div>
+  </div>
+
   <!-- ── LIGHTBOX ── -->
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Ilustración ampliada" onclick="closeLightbox(event)">
     <button class="lightbox-close" onclick="closeLightbox()" aria-label="Cerrar">✕</button>
@@ -913,6 +1076,25 @@
       btn.setAttribute('aria-expanded', 'false');
       btn.setAttribute('aria-label', 'Abrir menú');
     }
+
+    /* ─ CV Modal ─ */
+    function openCV() {
+      document.getElementById('cv-modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeCV() {
+      document.getElementById('cv-modal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function handleCvClick(e) {
+      if (e.target === document.getElementById('cv-modal')) closeCV();
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeLightbox();
+        closeCV();
+      }
+    });
 
     /* ─ Lightbox ─ */
     function openLightbox() {
