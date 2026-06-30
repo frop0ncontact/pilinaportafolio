@@ -27,6 +27,7 @@
 
     body {
       min-height: 100vh;
+      overflow-x: hidden;
       font-family: var(--font-body);
       background-color: var(--pink-bg);
       background-image:
@@ -133,33 +134,131 @@
       font-size: 0.95rem; color: var(--text-body); margin-top: 8px;
     }
 
-    /* ── Gallery ── */
-    .gallery {
-      max-width: 960px; margin: 32px auto 60px; padding: 0 20px;
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    /* ── Page description (lorem ipsum intro) ── */
+    .page-desc {
+      max-width: 760px; margin: 28px auto 36px; padding: 0 24px;
+      font-family: var(--font-body); font-weight: 700;
+      font-size: clamp(0.95rem, 1.6vw, 1.15rem); line-height: 1.6;
+      color: var(--text-main); text-align: center;
     }
-    .gallery__item {
-      border-radius: 16px; overflow: hidden;
-      background: var(--card-bg); box-shadow: var(--shadow-card);
-      cursor: zoom-in; position: relative; aspect-ratio: 2 / 3;
+
+    /* ── Filmstrip gallery (edge-to-edge, transform-driven) ── */
+    .filmstrip-section {
+      margin: 0 0 28px;
+    }
+    .filmstrip-outer {
+      width: 100vw;
+      position: relative;
+      left: 50%;
+      right: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+      overflow: hidden;
+    }
+    .filmstrip {
+      display: flex;
+      align-items: stretch;
+      gap: 18px;
+      padding: 4px 8vw;
+      will-change: transform;
+      transform: translateX(0px);
+    }
+    .filmstrip__item {
+      flex-shrink: 0;
+      height: 420px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      cursor: zoom-in;
+      position: relative;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .gallery__item:hover {
-      transform: translateY(-4px) scale(1.02);
+    .filmstrip__item:hover {
+      transform: translateY(-4px);
       box-shadow: 0 16px 48px rgba(180,80,130,0.22);
     }
-    .gallery__item img {
-      width: 100%; height: 100%; object-fit: cover; display: block;
+    .filmstrip__item img {
+      height: 100%;
+      width: auto;
+      max-width: none;
+      display: block;
+      object-fit: cover;
       transition: transform 0.4s ease;
     }
-    .gallery__item:hover img { transform: scale(1.04); }
-    .gallery__item::after {
+    .filmstrip__item:hover img { transform: scale(1.03); }
+    .filmstrip__item::after {
       content: '🔍'; position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
       font-size: 1.8rem; background: rgba(196,114,160,0.12);
-      opacity: 0; transition: opacity 0.25s;
+      opacity: 0; transition: opacity 0.25s; pointer-events: none;
     }
-    .gallery__item:hover::after { opacity: 1; }
+    .filmstrip__item:hover::after { opacity: 1; }
+
+    /* Keyframes injected per-transition (set via JS) attach to this name */
+    @keyframes fsSlide {
+      from { transform: translateX(var(--fs-from, 0px)); }
+      to   { transform: translateX(var(--fs-to, 0px)); }
+    }
+    .filmstrip.sliding {
+      animation: fsSlide 0.48s cubic-bezier(0.4,0,0.2,1) forwards;
+    }
+
+    /* ── Filmstrip nav (arrows + counter) ── */
+    .filmstrip-nav {
+      display: flex; align-items: center; justify-content: center;
+      gap: 22px; margin: 22px auto 0;
+    }
+    .filmstrip-nav .carousel-arrow {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--pink-dark); color: white; border: none;
+      font-size: 1.4rem; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 3px 12px rgba(180,80,130,0.28);
+    }
+    .filmstrip-nav .carousel-arrow:hover { background: var(--text-main); transform: scale(1.08); }
+    .filmstrip-counter {
+      font-family: var(--font-body); font-weight: 700; font-size: 0.95rem;
+      color: var(--text-main); min-width: 48px; text-align: center;
+    }
+
+    /* ── Diamond timeline (reused from main page) ── */
+    .carousel-timeline {
+      display: flex; align-items: center; gap: 6px;
+      max-width: 640px; margin: 22px auto 0; padding: 0 24px;
+    }
+    .carousel-timeline__track {
+      flex: 1; display: flex; align-items: center; position: relative;
+    }
+    .carousel-timeline__line { flex: 1; height: 1px; background: var(--pink-mid); opacity: 0.35; }
+    .carousel-timeline__diamond {
+      width: 10px; height: 10px;
+      border: 1.5px solid var(--pink-mid); background: transparent;
+      transform: rotate(45deg); flex-shrink: 0; cursor: pointer;
+      transition: border-color 0.35s ease, background 0.35s ease;
+      position: relative; z-index: 1; padding: 0;
+    }
+    .carousel-timeline__diamond.active { border-color: rgba(196,114,160,0.5); }
+    .carousel-timeline__indicator {
+      position: absolute; width: 12px; height: 12px;
+      background: var(--pink-dark); border: none;
+      pointer-events: none;
+      top: 50%; left: 0;
+      transform: translate(0px, -50%) rotate(45deg) scale(1);
+      box-shadow: 0 0 0 3px rgba(196,114,160,0.22);
+      z-index: 2;
+    }
+    /* Keyframes injected per-transition (set via JS) attach to this name.
+       Movement + pop happen in the same transform-only animation so it stays
+       GPU-accelerated and renders identically across browsers/devices. */
+    @keyframes fsIndicatorMove {
+      0%   { transform: translate(var(--ind-from, 0px), -50%) rotate(45deg) scale(0.85); }
+      55%  { transform: translate(var(--ind-to, 0px), -50%) rotate(45deg) scale(1.5); }
+      100% { transform: translate(var(--ind-to, 0px), -50%) rotate(45deg) scale(1); }
+    }
+    .carousel-timeline__indicator.moving {
+      animation: fsIndicatorMove 0.42s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
 
     /* ── Lightbox ── */
     .lightbox {
@@ -208,12 +307,14 @@
       .navbar { padding: 0 20px; }
       .nav-links, .nav-divider { display: none; }
       .nav-hamburger { display: flex; }
-      .gallery { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+      .filmstrip { padding: 4px 6vw; gap: 12px; }
+      .filmstrip__item { height: 280px; border-radius: 12px; }
+      .filmstrip-nav { gap: 16px; }
+      .filmstrip-nav .carousel-arrow { width: 38px; height: 38px; font-size: 1.1rem; }
       .lightbox__nav { width: 38px; height: 38px; font-size: 1.2rem; }
       .lightbox__prev { left: 8px; }
       .lightbox__next { right: 8px; }
     }
-    @media (max-width: 400px) { .gallery { grid-template-columns: 1fr; } }
     @media (prefers-reduced-motion: reduce) {
       * { transition: none !important; animation: none !important; }
     }
@@ -256,35 +357,23 @@
   </header>
 
   <main>
-    <div class="gallery">
-      <div class="gallery__item" onclick="openLightbox(0)">
-        <img src="Trabajos/Figurines_Moda/1.webp" alt="Figurín 1" loading="lazy" />
+    <p class="page-desc" id="page-desc">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers at Letraset and James.</p>
+
+    <section class="filmstrip-section" aria-label="Galería de figurines">
+      <div class="filmstrip-outer" id="filmstrip-outer">
+        <div class="filmstrip" id="filmstrip"></div>
       </div>
-      <div class="gallery__item" onclick="openLightbox(1)">
-        <img src="Trabajos/Figurines_Moda/2.webp" alt="Figurín 2" loading="lazy" />
+
+      <div class="filmstrip-nav">
+        <button class="carousel-arrow" onclick="filmstripStep(-1)" aria-label="Anterior">‹</button>
+        <span class="filmstrip-counter" id="fs-counter">1 / 1</span>
+        <button class="carousel-arrow" onclick="filmstripStep(1)" aria-label="Siguiente">›</button>
       </div>
-      <div class="gallery__item" onclick="openLightbox(2)">
-        <img src="Trabajos/Figurines_Moda/3.webp" alt="Figurín 3" loading="lazy" />
+
+      <div class="carousel-timeline">
+        <div class="carousel-timeline__track" id="fs-track"></div>
       </div>
-      <div class="gallery__item" onclick="openLightbox(3)">
-        <img src="Trabajos/Figurines_Moda/4.webp" alt="Figurín 4" loading="lazy" />
-      </div>
-      <div class="gallery__item" onclick="openLightbox(4)">
-        <img src="Trabajos/Figurines_Moda/5.webp" alt="Figurín 5" loading="lazy" />
-      </div>
-      <div class="gallery__item" onclick="openLightbox(5)">
-        <img src="Trabajos/Figurines_Moda/6.webp" alt="Figurín 6" loading="lazy" />
-      </div>
-      <div class="gallery__item" onclick="openLightbox(6)">
-        <img src="Trabajos/Figurines_Moda/14.webp" alt="Figurín 14" loading="lazy" />
-      </div>
-      <div class="gallery__item" onclick="openLightbox(7)">
-        <img src="Trabajos/Figurines_Moda/304.webp" alt="Figurín 304" loading="lazy" />
-      </div>
-      <div class="gallery__item" onclick="openLightbox(8)">
-        <img src="Trabajos/Figurines_Moda/Breakdown.webp" alt="Breakdown" loading="lazy" />
-      </div>
-    </div>
+    </section>
   </main>
 
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true"
@@ -312,9 +401,143 @@
     ];
 
     let current = 0;
+    let lbCurrent = 0;
+
+    /* ── Build filmstrip + timeline from the images array ── */
+    const outerEl     = document.getElementById('filmstrip-outer');
+    const filmstripEl = document.getElementById('filmstrip');
+    const trackEl      = document.getElementById('fs-track');
+
+    images.forEach((im, i) => {
+      const item = document.createElement('div');
+      item.className = 'filmstrip__item';
+      item.dataset.index = i;
+      item.onclick = () => openLightbox(i);
+      item.innerHTML = `<img src="${im.src}" alt="${im.alt}" loading="lazy" />`;
+      filmstripEl.appendChild(item);
+
+      if (i > 0) trackEl.appendChild(document.createElement('div')).className = 'carousel-timeline__line';
+      const diamond = document.createElement('button');
+      diamond.className = 'carousel-timeline__diamond' + (i === 0 ? ' active' : '');
+      diamond.dataset.index = i;
+      diamond.setAttribute('aria-label', im.alt);
+      diamond.onclick = () => filmstripGoTo(i);
+      trackEl.appendChild(diamond);
+    });
+    const indicatorEl = document.createElement('div');
+    indicatorEl.className = 'carousel-timeline__indicator';
+    indicatorEl.id = 'fs-indicator';
+    trackEl.appendChild(indicatorEl);
+
+    document.getElementById('fs-counter').textContent = '1 / ' + images.length;
+
+    /* ── Filmstrip navigation ──
+       Both the image slide and the diamond indicator move via real
+       @keyframes (transform-only, GPU-accelerated) instead of relying on
+       native smooth-scroll or transitions on layout properties. That keeps
+       the motion identical across browsers/devices and respects each
+       device's own rendering pipeline rather than a scroll API that some
+       mobile browsers implement inconsistently. */
+
+    let fsOffset  = 0; // current translateX applied to the filmstrip (negative px)
+    let indOffset = 0; // current translateX applied to the indicator (positive px)
+
+    function getFsTarget(i) {
+      const item = filmstripEl.children[i];
+      if (!item) return 0;
+      const viewportWidth = outerEl.clientWidth;
+      const itemCenter    = item.offsetLeft + item.offsetWidth / 2;
+      const maxOffset     = Math.max(0, filmstripEl.scrollWidth - viewportWidth);
+      const raw           = itemCenter - viewportWidth / 2;
+      return -Math.min(maxOffset, Math.max(0, raw));
+    }
+
+    function getIndTarget() {
+      const target = trackEl.querySelector('.carousel-timeline__diamond.active');
+      if (!target) return 0;
+      const trackRect  = trackEl.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      return targetRect.left - trackRect.left + targetRect.width / 2;
+    }
+
+    function animateFilmstrip(toX) {
+      filmstripEl.style.setProperty('--fs-from', fsOffset + 'px');
+      filmstripEl.style.setProperty('--fs-to', toX + 'px');
+      filmstripEl.classList.remove('sliding');
+      void filmstripEl.offsetWidth; // restart animation
+      filmstripEl.classList.add('sliding');
+      filmstripEl.style.transform = `translateX(${toX}px)`;
+      fsOffset = toX;
+    }
+
+    function animateIndicator(toX) {
+      indicatorEl.style.setProperty('--ind-from', indOffset + 'px');
+      indicatorEl.style.setProperty('--ind-to', toX + 'px');
+      indicatorEl.classList.remove('moving');
+      void indicatorEl.offsetWidth; // restart animation
+      indicatorEl.classList.add('moving');
+      indicatorEl.style.transform = `translate(${toX}px, -50%) rotate(45deg) scale(1)`;
+      indOffset = toX;
+    }
+
+    function setFilmstripActive(i) {
+      current = i;
+      document.querySelectorAll('#fs-track .carousel-timeline__diamond').forEach(d => {
+        d.classList.toggle('active', parseInt(d.dataset.index) === i);
+      });
+      document.getElementById('fs-counter').textContent = (i + 1) + ' / ' + images.length;
+    }
+
+    function filmstripGoTo(i) {
+      i = (i + images.length) % images.length;
+      setFilmstripActive(i);
+      animateFilmstrip(getFsTarget(i));
+      animateIndicator(getIndTarget());
+    }
+
+    function filmstripStep(dir) {
+      filmstripGoTo(current + dir);
+    }
+
+    // Reposition instantly (no animation) on resize, since item widths/offsets
+    // can shift at different breakpoints.
+    function snapInstant() {
+      const toX  = getFsTarget(current);
+      const indX = getIndTarget();
+      filmstripEl.classList.remove('sliding');
+      indicatorEl.classList.remove('moving');
+      filmstripEl.style.transform = `translateX(${toX}px)`;
+      indicatorEl.style.transform = `translate(${indX}px, -50%) rotate(45deg) scale(1)`;
+      fsOffset  = toX;
+      indOffset = indX;
+    }
+    window.addEventListener('load', snapInstant);
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(snapInstant, 120);
+    });
+
+    // Manual swipe support (touch) since native scrolling was removed in
+    // favor of the keyframe-driven slide.
+    let touchStartX = null, touchStartY = null, touchLocked = false;
+    outerEl.addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchLocked = false;
+    }, { passive: true });
+    outerEl.addEventListener('touchend', e => {
+      if (touchStartX === null) return;
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+        filmstripStep(dx < 0 ? 1 : -1);
+      }
+      touchStartX = null;
+    }, { passive: true });
 
     function openLightbox(i) {
-      current = i; updateLb();
+      lbCurrent = i; updateLb();
       document.getElementById('lightbox').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
@@ -326,14 +549,14 @@
       if (e.target === document.getElementById('lightbox')) closeLightbox();
     }
     function navigate(dir) {
-      current = (current + dir + images.length) % images.length;
+      lbCurrent = (lbCurrent + dir + images.length) % images.length;
       updateLb();
     }
     function updateLb() {
-      document.getElementById('lb-img').src = images[current].src;
-      document.getElementById('lb-img').alt = images[current].alt;
+      document.getElementById('lb-img').src = images[lbCurrent].src;
+      document.getElementById('lb-img').alt = images[lbCurrent].alt;
       document.getElementById('lb-counter').textContent =
-        (current + 1) + ' / ' + images.length;
+        (lbCurrent + 1) + ' / ' + images.length;
     }
     document.addEventListener('keydown', e => {
       if (!document.getElementById('lightbox').classList.contains('open')) return;
