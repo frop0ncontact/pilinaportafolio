@@ -569,132 +569,280 @@
       from { opacity: 0; transform: scale(0.88); }
       to   { opacity: 1; transform: scale(1); }
     }
-    /* ─── Nav Cards (botones de sección) ─── */
-    .nav-cards {
+    /* ─── Portfolio Carousel ─── */
+    .carousel-wrap {
       width: 100%;
       max-width: 960px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      margin-top: 24px;
+      margin-top: 32px;
+      padding: 0 20px;
     }
 
-    .nav-card {
-      background: rgba(252, 232, 243, 0.82);
-      border: 1.5px solid rgba(212, 138, 184, 0.3);
-      border-radius: 20px;
-      padding: 28px 20px 24px;
+    /* ── Keyframes ── */
+    @keyframes cSlideOutLeft {
+      from { opacity: 1; transform: translateX(0);    }
+      to   { opacity: 0; transform: translateX(-44px);}
+    }
+    @keyframes cSlideOutRight {
+      from { opacity: 1; transform: translateX(0);    }
+      to   { opacity: 0; transform: translateX( 44px);}
+    }
+    @keyframes cSlideInFromRight {
+      from { opacity: 0; transform: translateX( 44px);}
+      to   { opacity: 1; transform: translateX(0);    }
+    }
+    @keyframes cSlideInFromLeft {
+      from { opacity: 0; transform: translateX(-44px);}
+      to   { opacity: 1; transform: translateX(0);    }
+    }
+    @keyframes cFadeOut {
+      from { opacity: 1; } to { opacity: 0; }
+    }
+    @keyframes cFadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    @keyframes cRiseOut {
+      from { opacity: 1; transform: translateY(0)    scale(1);    }
+      to   { opacity: 0; transform: translateY(18px) scale(0.98); }
+    }
+    @keyframes cRiseIn {
+      from { opacity: 0; transform: translateY(18px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0)    scale(1);    }
+    }
+    @keyframes diamondPop {
+      0%   { transform: rotate(45deg) scale(1);   }
+      55%  { transform: rotate(45deg) scale(1.8); }
+      100% { transform: rotate(45deg) scale(1.45);}
+    }
+
+    /* ── OUT classes ── */
+    .c-out .carousel-title {
+      animation: cSlideOutLeft 0.28s cubic-bezier(0.4,0,1,1) both;
+    }
+    .c-out-r .carousel-title {
+      animation: cSlideOutRight 0.28s cubic-bezier(0.4,0,1,1) both;
+    }
+    .c-out .carousel-desc,
+    .c-out-r .carousel-desc {
+      animation: cFadeOut 0.22s ease both;
+    }
+    .c-out .carousel-leemas,
+    .c-out-r .carousel-leemas {
+      animation: cRiseOut 0.24s ease both;
+    }
+    .c-out .carousel-mosaic-wrap,
+    .c-out-r .carousel-mosaic-wrap {
+      animation: cRiseOut 0.28s ease both;
+    }
+
+    /* ── IN classes ── */
+    .c-in .carousel-title {
+      animation: cSlideInFromRight 0.38s cubic-bezier(0,0,0.2,1) both;
+    }
+    .c-in-r .carousel-title {
+      animation: cSlideInFromLeft  0.38s cubic-bezier(0,0,0.2,1) both;
+    }
+    .c-in .carousel-desc,
+    .c-in-r .carousel-desc {
+      animation: cFadeIn 0.36s ease both;
+      animation-delay: 0.06s;
+    }
+    .c-in .carousel-leemas,
+    .c-in-r .carousel-leemas {
+      animation: cRiseIn 0.36s ease both;
+      animation-delay: 0.09s;
+    }
+    .c-in .carousel-mosaic-wrap,
+    .c-in-r .carousel-mosaic-wrap {
+      animation: cRiseIn 0.48s cubic-bezier(0,0,0.2,1) both;
+      animation-delay: 0.12s;
+    }
+
+    /* ── Timeline ── */
+    .carousel-timeline {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 14px;
-      text-decoration: none;
-      cursor: pointer;
-      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.2s;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
+      gap: 6px;
+      margin-bottom: 24px;
     }
-
-    .nav-card:hover {
-      transform: translateY(-5px) scale(1.02);
-      box-shadow: 0 12px 36px rgba(180, 80, 130, 0.18);
-      background: rgba(252, 232, 243, 0.97);
-    }
-
-    /* Círculo ícono */
-    .nav-card__icon {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      border: 2px solid var(--pink-mid);
-      background: var(--pink-bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .carousel-timeline__year {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--pink-mid);
+      white-space: nowrap;
       flex-shrink: 0;
     }
-
-    .nav-card__icon svg {
-      width: 30px;
-      height: 30px;
-      stroke: var(--pink-dark);
-      stroke-width: 1.6;
-      fill: none;
+    /* ── Diamond traveling indicator ── */
+    @keyframes diamondPop {
+      0%   { transform: rotate(45deg) scale(0.6); opacity: 0.5; }
+      60%  { transform: rotate(45deg) scale(1.6); }
+      100% { transform: rotate(45deg) scale(1);   opacity: 1;   }
     }
 
-    /* Título */
-    .nav-card__title {
-      font-family: var(--font-display);
-      font-weight: 600;
-      font-size: 1rem;
-      color: var(--pink-dark);
-      text-align: center;
-      letter-spacing: 0.04em;
-      line-height: 1.3;
-    }
-
-    /* Preview imagen */
-    .nav-card__preview {
-      width: 100%;
-      height: 110px;
-      border-radius: 12px;
-      overflow: hidden;
-      background: var(--pink-light);
+    .carousel-timeline__track {
+      flex: 1;
       display: flex;
       align-items: center;
-      justify-content: center;
+      position: relative; /* needed for absolute indicator */
+    }
+    .carousel-timeline__line {
+      flex: 1;
+      height: 1px;
+      background: var(--pink-mid);
+      opacity: 0.35;
+    }
+    .carousel-timeline__diamond {
+      width: 10px; height: 10px;
+      border: 1.5px solid var(--pink-mid);
+      background: transparent;
+      transform: rotate(45deg);
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: border-color 0.35s ease, background 0.35s ease;
+      position: relative; /* for getBoundingClientRect */
+      z-index: 1;
+    }
+    /* No active styles on the static diamonds — indicator handles it */
+    .carousel-timeline__diamond.active {
+      border-color: rgba(196,114,160,0.5);
     }
 
-    .nav-card__preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.35s ease;
+    /* The traveling indicator */
+    .carousel-timeline__indicator {
+      position: absolute;
+      width: 12px; height: 12px;
+      background: var(--pink-dark);
+      border: none;
+      transform: rotate(45deg) scale(1);
+      pointer-events: none;
+      top: 50%;
+      margin-top: -6px;
+      margin-left: -6px;
+      box-shadow: 0 0 0 3px rgba(196,114,160,0.22);
+      transition: left 0.42s cubic-bezier(0.4,0,0.2,1);
+      z-index: 2;
+    }
+    .carousel-timeline__indicator.pop {
+      animation: diamondPop 0.42s cubic-bezier(0.34,1.56,0.64,1) forwards;
     }
 
-    .nav-card:hover .nav-card__preview img {
-      transform: scale(1.06);
-    }
-
-    /* Flecha abajo */
-    .nav-card__arrow {
-      font-size: 1rem;
-      color: var(--pink-mid);
+    /* ── Title ── */
+    .carousel-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      color: var(--pink-dark);
+      text-transform: uppercase;
+      text-align: center;
+      letter-spacing: -0.01em;
       line-height: 1;
+      margin-bottom: 20px;
     }
 
-    /* Disabled/coming-soon state */
-    .nav-card--soon {
-      opacity: 0.55;
-      cursor: default;
+    /* ── Nav row ── */
+    .carousel-nav {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .carousel-arrow {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--pink-dark);
+      color: white;
+      border: none;
+      font-size: 1.4rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 3px 12px rgba(180,80,130,0.28);
+    }
+    .carousel-arrow:hover { background: var(--text-main); transform: scale(1.08); }
+
+    /* ── Description ── */
+    .carousel-desc {
+      flex: 1;
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      line-height: 1.65;
+      color: var(--text-body);
+      text-align: center;
+    }
+
+    /* ── Leer más ── */
+    .carousel-leemas {
+      display: block;
+      width: fit-content;
+      margin: 0 auto 24px;
+      padding: 9px 36px;
+      background: var(--pink-dark);
+      border: 1.5px solid var(--pink-dark);
+      border-radius: 6px;
+      color: white;
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      cursor: pointer;
+    }
+    .carousel-leemas:hover {
+      background: var(--text-main);
+      border-color: var(--text-main);
+    }
+    .carousel-leemas--soon {
+      background: var(--pink-light);
+      border-color: var(--pink-light);
+      color: var(--pink-mid);
       pointer-events: none;
     }
 
-    .nav-card--soon .nav-card__title::after {
-      content: ' · próximamente';
-      font-weight: 300;
-      font-style: italic;
-      font-size: 0.8rem;
-      color: var(--pink-mid);
+    /* ── Mosaic ── */
+    .carousel-mosaic-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .carousel-mosaic {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .carousel-mosaic img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+      border-radius: 14px;
+      box-shadow: var(--shadow-card);
+      transition: transform 0.35s ease, box-shadow 0.3s ease;
+    }
+    .carousel-mosaic img:hover {
+      transform: scale(1.012);
+      box-shadow: 0 12px 36px rgba(180,80,130,0.18);
+    }
+    .carousel-mosaic--empty {
+      height: 200px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--pink-light) 0%, var(--pink-bg) 100%);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow-card);
+    }
+    .carousel-mosaic--empty svg {
+      width: 64px; height: 64px;
+      stroke: var(--pink-mid); fill: none; stroke-width: 1.2; opacity: 0.4;
     }
 
     @media (max-width: 680px) {
-      .nav-cards {
-        grid-template-columns: 1fr;
-        gap: 14px;
-      }
-
-      .nav-card {
-        flex-direction: row;
-        padding: 18px 20px;
-        gap: 16px;
-        align-items: center;
-      }
-
-      .nav-card__preview { width: 70px; height: 70px; flex-shrink: 0; }
-      .nav-card__icon    { width: 50px; height: 50px; flex-shrink: 0; }
-      .nav-card__arrow   { margin-left: auto; }
+      .carousel-wrap { padding: 0; }
+      .carousel-mosaic img { height: 170px; }
+      .carousel-arrow { width: 38px; height: 38px; font-size: 1.1rem; }
+      .carousel-title { font-size: 2rem; }
     }
 
     /* ─── Botón CV ─── */
@@ -867,12 +1015,248 @@
       display: block;
     }
 
+    /* ─── Mosaic Lightbox ─── */
+    @keyframes lbImgOutL { from{opacity:1;transform:translateX(0)}     to{opacity:0;transform:translateX(-60px)} }
+    @keyframes lbImgOutR { from{opacity:1;transform:translateX(0)}     to{opacity:0;transform:translateX( 60px)} }
+    @keyframes lbImgInR  { from{opacity:0;transform:translateX( 60px)} to{opacity:1;transform:translateX(0)}    }
+    @keyframes lbImgInL  { from{opacity:0;transform:translateX(-60px)} to{opacity:1;transform:translateX(0)}    }
+    @keyframes lbImgOpen { from{opacity:0;transform:scale(0.94)}       to{opacity:1;transform:scale(1)}         }
+
+    .mosaic-lb {
+      position: fixed;
+      inset: 0;
+      z-index: 400;
+      background: rgba(60, 10, 35, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.35s cubic-bezier(0.4,0,0.2,1), visibility 0.35s;
+    }
+    .mosaic-lb.open { opacity: 1; visibility: visible; }
+
+    .mosaic-lb__img {
+      max-width: min(90vw, 800px);
+      max-height: 88vh;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+    .mosaic-lb__img.lb-out-l { animation: lbImgOutL 0.2s cubic-bezier(0.4,0,1,1) both; }
+    .mosaic-lb__img.lb-out-r { animation: lbImgOutR 0.2s cubic-bezier(0.4,0,1,1) both; }
+    .mosaic-lb__img.lb-in-r  { animation: lbImgInR  0.3s cubic-bezier(0,0,0.2,1)  both; }
+    .mosaic-lb__img.lb-in-l  { animation: lbImgInL  0.3s cubic-bezier(0,0,0.2,1)  both; }
+    .mosaic-lb__img.lb-open  { animation: lbImgOpen 0.3s cubic-bezier(0,0,0.2,1)  both; }
+
+    .mosaic-lb__nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: rgba(252,232,243,0.12);
+      border: 1.5px solid rgba(240,184,216,0.4);
+      color: rgba(240,184,216,0.8);
+      font-size: 1.6rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background 0.25s, color 0.25s, border-color 0.25s;
+      backdrop-filter: blur(4px);
+    }
+
+    .mosaic-lb__nav:hover {
+      background: rgba(252,232,243,0.28);
+      color: white;
+      border-color: white;
+    }
+
+    .mosaic-lb__prev { left: 20px; }
+    .mosaic-lb__next { right: 20px; }
+
+    .mosaic-lb__close {
+      position: absolute;
+      top: 20px; right: 24px;
+      background: none; border: none;
+      color: rgba(240,184,216,0.7);
+      font-size: 2rem; cursor: pointer;
+      transition: color 0.2s, transform 0.2s;
+      line-height: 1;
+    }
+
+    .mosaic-lb__close:hover { color: white; transform: scale(1.1); }
+
+    .mosaic-lb__counter {
+      position: absolute;
+      bottom: 20px; left: 50%; transform: translateX(-50%);
+      font-family: var(--font-body);
+      font-size: 0.78rem; letter-spacing: 0.14em;
+      color: rgba(240,184,216,0.55);
+      transition: opacity 0.2s;
+    }
+
+    /* Swipe drag visual hint */
+    .mosaic-lb__img.is-dragging {
+      transition: none;
+      cursor: grabbing;
+    }
+
+    @media (max-width: 680px) {
+      .mosaic-lb__nav { width: 38px; height: 38px; font-size: 1.2rem; }
+      .mosaic-lb__prev { left: 8px; }
+      .mosaic-lb__next { right: 8px; }
+    }
+
+    /* ─── Footer ─── */
+    .site-footer {
+      width: 100%;
+      margin-top: 60px;
+      background: rgba(252, 232, 243, 0.6);
+      border-top: 1px solid rgba(212, 138, 184, 0.2);
+      backdrop-filter: blur(8px);
+    }
+
+    .footer-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 28px 20px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .footer-brand img {
+      height: 32px;
+      width: auto;
+      opacity: 0.75;
+    }
+
+    .footer-nav {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .footer-nav a {
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-main);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-nav a:hover { color: var(--pink-dark); }
+
+    .footer-copy {
+      text-align: right;
+    }
+
+    .footer-copy p {
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      color: var(--pink-mid);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 680px) {
+      .footer-inner {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 16px;
+      }
+
+      .footer-brand { justify-content: center; }
+      .footer-nav   { justify-content: center; flex-wrap: wrap; gap: 16px; }
+      .footer-copy  { text-align: center; }
+    }
+
+    /* ─── Preloader ─── */
+    .preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--card-bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    .preloader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .preloader__logo {
+      height: 80px;
+      width: auto;
+      animation: pl-pulse 1.8s ease-in-out infinite;
+    }
+
+    .preloader__bar-wrap {
+      width: 160px;
+      height: 1.5px;
+      background: var(--pink-light);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .preloader__bar {
+      height: 100%;
+      width: 0%;
+      background: var(--pink-dark);
+      border-radius: 999px;
+      transition: width 0.1s linear;
+    }
+
+    .preloader__pct {
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      color: var(--pink-mid);
+    }
+
+    @keyframes pl-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.7; transform: scale(0.97); }
+    }
+
     /* ─── Reduced motion ─── */
       * { transition: none !important; }
     }
   </style>
 </head>
 <body>
+
+  <!-- ── PRELOADER ── -->
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <img class="preloader__logo" src="ElementosPaginaWeb/Logo.png" alt="Zatana" />
+    <div class="preloader__bar-wrap">
+      <div class="preloader__bar" id="pl-bar"></div>
+    </div>
+    <span class="preloader__pct" id="pl-pct">0%</span>
+  </div>
 
   <!-- ── NAVBAR ── -->
   <header class="navbar" role="banner">
@@ -1026,54 +1410,60 @@
 
   </main>
 
-  <!-- ── SECCIÓN BOTONES DE NAVEGACIÓN ── -->
-  <nav class="nav-cards" aria-label="Secciones del portafolio">
+  <!-- ── PORTFOLIO CAROUSEL ── -->
+  <section class="carousel-wrap" aria-label="Portafolio">
+    <div class="carousel-content" id="carousel-content">
 
-    <!-- Figurines Moda -->
-    <a class="nav-card" href="https://zatana.cl/figurines_moda">
-      <div class="nav-card__icon" aria-hidden="true">
-        <!-- ícono: figura humana / maniquí -->
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="4" r="2"/><path d="M9 9h6l1 5h-2l1 7H9l1-7H8z"/></svg>
+      <!-- Timeline: 1 diamante por categoría -->
+      <div class="carousel-timeline">
+        <span class="carousel-timeline__year">2022 – 2025</span>
+        <div class="carousel-timeline__track" id="c-timeline-track">
+          <div class="carousel-timeline__line"></div>
+          <button class="carousel-timeline__diamond active" data-index="0" onclick="goTo(0)" aria-label="Figurines de Moda"></button>
+          <div class="carousel-timeline__line"></div>
+          <button class="carousel-timeline__diamond" data-index="1" onclick="goTo(1)" aria-label="Fichas Técnicas"></button>
+          <div class="carousel-timeline__line"></div>
+          <button class="carousel-timeline__diamond" data-index="2" onclick="goTo(2)" aria-label="Trabajos Análogos"></button>
+          <div class="carousel-timeline__line"></div>
+          <!-- Traveling indicator -->
+          <div class="carousel-timeline__indicator" id="c-indicator"></div>
+        </div>
       </div>
-      <span class="nav-card__title">Figurines<br>de Moda</span>
-      <div class="nav-card__preview">
-        <img src="Trabajos/Figurines_Moda/1.webp" alt="Preview figurines de moda" loading="lazy" />
-      </div>
-      <span class="nav-card__arrow" aria-hidden="true">↓</span>
-    </a>
 
-    <!-- Fichas Técnicas -->
-    <a class="nav-card nav-card--soon" href="https://zatana.cl/fichas_tecnicas" aria-disabled="true" tabindex="-1">
-      <div class="nav-card__icon" aria-hidden="true">
-        <!-- ícono: clipboard / ficha -->
-        <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="13" y2="14"/></svg>
-      </div>
-      <span class="nav-card__title">Fichas<br>Técnicas</span>
-      <div class="nav-card__preview">
-        <svg viewBox="0 0 80 80" width="48" opacity="0.3" fill="none" stroke="#c472a0" stroke-width="2">
-          <rect x="15" y="10" width="50" height="60" rx="4"/>
-          <line x1="25" y1="30" x2="55" y2="30"/><line x1="25" y1="40" x2="55" y2="40"/><line x1="25" y1="50" x2="45" y2="50"/>
-        </svg>
-      </div>
-      <span class="nav-card__arrow" aria-hidden="true">↓</span>
-    </a>
+      <!-- Título grande centrado -->
+      <h2 class="carousel-title" id="c-title">FIGURINES DE MODA</h2>
 
-    <!-- Trabajos Análogos -->
-    <a class="nav-card nav-card--soon" href="https://zatana.cl/trabajos_analogos" aria-disabled="true" tabindex="-1">
-      <div class="nav-card__icon" aria-hidden="true">
-        <!-- ícono: flor / análogo -->
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="7.8" cy="7.8" r="2"/><circle cx="16.2" cy="16.2" r="2"/><circle cx="16.2" cy="7.8" r="2"/><circle cx="7.8" cy="16.2" r="2"/></svg>
+      <!-- Flechas + descripción -->
+      <div class="carousel-nav">
+        <button class="carousel-arrow" onclick="step(-1)" aria-label="Anterior">‹</button>
+        <p class="carousel-desc" id="c-desc">Ilustraciones de moda a mano alzada: propuestas de vestuario, siluetas y colecciones. Cada figurín traduce una idea en imagen con identidad y técnica.</p>
+        <button class="carousel-arrow" onclick="step(1)" aria-label="Siguiente">›</button>
       </div>
-      <span class="nav-card__title">Trabajos<br>Análogos</span>
-      <div class="nav-card__preview">
-        <svg viewBox="0 0 80 80" width="48" opacity="0.3" fill="none" stroke="#c472a0" stroke-width="2">
-          <circle cx="40" cy="30" r="12"/><path d="M40 30 Q30 50 20 65 M40 30 Q50 50 60 65"/>
-        </svg>
-      </div>
-      <span class="nav-card__arrow" aria-hidden="true">↓</span>
-    </a>
 
-  </nav>
+      <!-- Botón leer más centrado -->
+      <a class="carousel-leemas" id="c-btn" href="https://zatana.cl/figurines_moda">LEER MÁS</a>
+
+      <!-- Mosaico de imágenes -->
+      <div class="carousel-mosaic-wrap">
+        <div class="carousel-mosaic" id="c-mosaic">
+          <img src="Trabajos/Figurines_Moda/1.webp" data-index="0" alt="" loading="lazy" onerror="this.src='https://i.imgur.com/n2Jwp9F.png'" onclick="openMosaicLb(0)" style="cursor:zoom-in" />
+          <img src="Trabajos/Figurines_Moda/2.webp" data-index="1" alt="" loading="lazy" onerror="this.src='https://i.imgur.com/n2Jwp9F.png'" onclick="openMosaicLb(1)" style="cursor:zoom-in" />
+          <img src="Trabajos/Figurines_Moda/3.webp" data-index="2" alt="" loading="lazy" onerror="this.src='https://i.imgur.com/n2Jwp9F.png'" onclick="openMosaicLb(2)" style="cursor:zoom-in" />
+          <img src="Trabajos/Figurines_Moda/4.webp" data-index="3" alt="" loading="lazy" onerror="this.src='https://i.imgur.com/n2Jwp9F.png'" onclick="openMosaicLb(3)" style="cursor:zoom-in" />
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── MOSAIC LIGHTBOX ── -->
+  <div class="mosaic-lb" id="mosaic-lb" role="dialog" aria-modal="true" aria-label="Imagen ampliada">
+    <button class="mosaic-lb__close" onclick="closeMosaicLb()" aria-label="Cerrar">✕</button>
+    <button class="mosaic-lb__nav mosaic-lb__prev" onclick="mosaicNav(-1)" aria-label="Anterior">‹</button>
+    <img class="mosaic-lb__img" id="mosaic-lb-img" src="" alt="" onclick="event.stopPropagation()" />
+    <button class="mosaic-lb__nav mosaic-lb__next" onclick="mosaicNav(1)" aria-label="Siguiente">›</button>
+    <span class="mosaic-lb__counter" id="mosaic-lb-counter"></span>
+  </div>
 
   <!-- ── MODAL CV ── -->
   <div class="cv-modal" id="cv-modal" role="dialog" aria-modal="true" aria-label="Curriculum Vitae" onclick="handleCvClick(event)">
@@ -1117,6 +1507,270 @@
       btn.setAttribute('aria-expanded', 'false');
       btn.setAttribute('aria-label', 'Abrir menú');
     }
+
+    /* ─ Carrusel ─ */
+    const PLACEHOLDER = 'https://i.imgur.com/n2Jwp9F.png';
+
+    const slides = [
+      {
+        title: 'FIGURINES DE MODA',
+        desc:  'Ilustraciones de moda a mano alzada: propuestas de vestuario, siluetas y colecciones. Cada figurín traduce una idea en imagen con identidad y técnica.',
+        btn:   { text: 'LEER MÁS', href: 'https://zatana.cl/figurines_moda', soon: false },
+        images: [
+          'Trabajos/Figurines_Moda/1.webp',
+          'Trabajos/Figurines_Moda/2.webp',
+          'Trabajos/Figurines_Moda/3.webp',
+          'Trabajos/Figurines_Moda/4.webp',
+        ]
+      },
+      {
+        title: 'FICHAS TÉCNICAS',
+        desc:  'Documentación técnica de prendas: patrones, especificaciones de construcción y detalle de materiales. El puente entre el diseño y la producción.',
+        btn:   { text: 'PRÓXIMAMENTE', href: '#', soon: true },
+        images: []
+      },
+      {
+        title: 'TRABAJOS ANÁLOGOS',
+        desc:  'Obra manual y artesanal: bocetos, collages e intervenciones textiles. El proceso creativo en su forma más directa.',
+        btn:   { text: 'PRÓXIMAMENTE', href: '#', soon: true },
+        images: []
+      }
+    ];
+
+    let carouselCurrent = 0;
+    let isAnimating     = false;
+
+    function goTo(index) {
+      if (isAnimating) return;
+      const dir = index > carouselCurrent ? 'l' : 'r'; // left = next, right = prev
+      carouselCurrent = (index + slides.length) % slides.length;
+      renderCarousel(dir);
+    }
+
+    function step(dir) {
+      if (isAnimating) return;
+      const d = dir > 0 ? 'l' : 'r';
+      carouselCurrent = (carouselCurrent + dir + slides.length) % slides.length;
+      renderCarousel(d);
+    }
+
+    function renderCarousel(dir) {
+      if (isAnimating) return;
+      isAnimating = true;
+
+      const s       = slides[carouselCurrent];
+      const content = document.getElementById('carousel-content');
+      const outCls  = dir === 'l' ? 'c-out'   : 'c-out-r';
+      const inCls   = dir === 'l' ? 'c-in'    : 'c-in-r';
+
+      // Update diamond indicator — travels along the line
+      document.querySelectorAll('.carousel-timeline__diamond').forEach(d => {
+        d.classList.toggle('active', parseInt(d.dataset.index) === carouselCurrent);
+      });
+      // Move the traveling indicator to the active diamond's position
+      (function positionIndicator() {
+        const track     = document.getElementById('c-timeline-track');
+        const indicator = document.getElementById('c-indicator');
+        const target    = track.querySelector('.carousel-timeline__diamond.active');
+        if (!target || !indicator) return;
+        const trackRect  = track.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        const left = targetRect.left - trackRect.left + targetRect.width / 2;
+        indicator.style.left = left + 'px';
+        // Pop animation on arrival
+        indicator.classList.remove('pop');
+        void indicator.offsetWidth;
+        indicator.classList.add('pop');
+      })();
+
+      // Phase 1: OUT animation
+      content.classList.remove('c-out', 'c-out-r', 'c-in', 'c-in-r');
+      content.classList.add(outCls);
+
+      setTimeout(() => {
+        // Phase 2: swap content while invisible
+        content.classList.remove('c-out', 'c-out-r', 'c-in', 'c-in-r');
+
+        document.getElementById('c-title').textContent = s.title;
+        document.getElementById('c-desc').textContent  = s.desc;
+
+        const btn = document.getElementById('c-btn');
+        btn.textContent = s.btn.text;
+        btn.href        = s.btn.href;
+        btn.className   = 'carousel-leemas' + (s.btn.soon ? ' carousel-leemas--soon' : '');
+
+        const mosaic = document.getElementById('c-mosaic');
+        if (s.images.length > 0) {
+          mosaic.className = 'carousel-mosaic';
+          mosaic.innerHTML = s.images.map((src, i) =>
+            `<img src="${src}" data-index="${i}" alt="" loading="lazy"
+              onerror="this.src='${PLACEHOLDER}'"
+              onclick="openMosaicLb(${i})" style="cursor:zoom-in" />`
+          ).join('');
+        } else {
+          mosaic.className = 'carousel-mosaic--empty';
+          mosaic.innerHTML = `<svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="13" y2="14"/></svg>`;
+        }
+
+        // Phase 3: IN animation (next frame so browser sees the cleared state)
+        requestAnimationFrame(() => {
+          content.classList.add(inCls);
+          setTimeout(() => {
+            content.classList.remove('c-out', 'c-out-r', 'c-in', 'c-in-r');
+            isAnimating = false;
+          }, 520);
+        });
+
+      }, 300); // matches OUT duration
+    }
+
+    // onclick en mosaico inicial
+    document.querySelectorAll('#c-mosaic img').forEach((img, i) => {
+      img.style.cursor = 'zoom-in';
+      img.onclick = () => openMosaicLb(i);
+    });
+
+    // Position indicator on load
+    window.addEventListener('load', () => {
+      const track     = document.getElementById('c-timeline-track');
+      const indicator = document.getElementById('c-indicator');
+      const target    = track && track.querySelector('.carousel-timeline__diamond.active');
+      if (target && indicator) {
+        const trackRect  = track.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        indicator.style.left = (targetRect.left - trackRect.left + targetRect.width / 2) + 'px';
+      }
+    });
+
+    /* ─ Mosaic Lightbox ─ */
+    let mosaicIdx   = 0;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let dragStartX  = 0;
+    let isDragging  = false;
+    let dragDelta   = 0;
+
+    function currentImages() {
+      return slides[carouselCurrent].images;
+    }
+
+    function openMosaicLb(i) {
+      const imgs = currentImages();
+      if (!imgs.length) return;
+      mosaicIdx    = i;
+      const img    = document.getElementById('mosaic-lb-img');
+      const lb     = document.getElementById('mosaic-lb');
+
+      img.classList.remove('lb-out-l','lb-out-r','lb-in-r','lb-in-l','lb-open');
+      img.src     = imgs[i];
+      img.onerror = () => { img.src = PLACEHOLDER; };
+      document.getElementById('mosaic-lb-counter').textContent = (i + 1) + ' / ' + imgs.length;
+
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+
+      requestAnimationFrame(() => {
+        img.classList.add('lb-open');
+      });
+    }
+
+    function closeMosaicLb() {
+      document.getElementById('mosaic-lb').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function mosaicNav(dir) {
+      const imgs = currentImages();
+      if (!imgs.length) return;
+      const img     = document.getElementById('mosaic-lb-img');
+      const outCls  = dir > 0 ? 'lb-out-l' : 'lb-out-r';
+      const inCls   = dir > 0 ? 'lb-in-r'  : 'lb-in-l';
+
+      // Clear any running animation
+      img.classList.remove('lb-out-l','lb-out-r','lb-in-r','lb-in-l','lb-open','is-dragging');
+      img.style.transform = '';
+
+      // OUT
+      img.classList.add(outCls);
+
+      setTimeout(() => {
+        mosaicIdx = (mosaicIdx + dir + imgs.length) % imgs.length;
+        img.src      = imgs[mosaicIdx];
+        img.onerror  = () => { img.src = PLACEHOLDER; };
+        document.getElementById('mosaic-lb-counter').textContent = (mosaicIdx + 1) + ' / ' + imgs.length;
+
+        img.classList.remove(outCls);
+        // IN (next frame so browser sees the class removal)
+        requestAnimationFrame(() => { img.classList.add(inCls); });
+      }, 200);
+    }
+
+    /* ── Touch / swipe ── */
+    const lbEl = document.getElementById('mosaic-lb');
+
+    lbEl.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].clientX;
+      touchStartY = e.changedTouches[0].clientY;
+    }, { passive: true });
+
+    lbEl.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      // Solo swipe horizontal
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 35) {
+        mosaicNav(dx < 0 ? 1 : -1);
+      }
+    }, { passive: true });
+
+    /* ── Mouse drag ── */
+    const lbImg = document.getElementById('mosaic-lb-img');
+
+    lbImg.addEventListener('mousedown', e => {
+      isDragging = true;
+      dragStartX = e.clientX;
+      dragDelta  = 0;
+      e.preventDefault();
+    });
+
+    window.addEventListener('mousemove', e => {
+      if (!isDragging) return;
+      dragDelta = e.clientX - dragStartX;
+      lbImg.style.transform = `translateX(${dragDelta * 0.14}px)`;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      lbImg.style.transform = '';
+      if (Math.abs(dragDelta) > 50) mosaicNav(dragDelta < 0 ? 1 : -1);
+      dragDelta = 0;
+    });
+
+    window.addEventListener('mouseleave', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      lbImg.style.transform = '';
+      dragDelta = 0;
+    });
+
+    /* ── Wheel ── */
+    lbEl.addEventListener('wheel', e => {
+      e.preventDefault();
+      mosaicNav(e.deltaY > 0 ? 1 : -1);
+    }, { passive: false });
+
+    /* ── Keyboard ── */
+    document.addEventListener('keydown', e => {
+      if (!document.getElementById('mosaic-lb').classList.contains('open')) return;
+      if (e.key === 'ArrowRight') mosaicNav(1);
+      if (e.key === 'ArrowLeft')  mosaicNav(-1);
+      if (e.key === 'Escape')     closeMosaicLb();
+    });
+
+    /* ── Click fuera cierra ── */
+    lbEl.addEventListener('click', e => {
+      if (e.target === lbEl) closeMosaicLb();
+    });
 
     /* ─ CV Modal ─ */
     let cvScale = 1;
@@ -1163,6 +1817,57 @@
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') closeLightbox();
     });
+  </script>
+  <!-- ── FOOTER ── -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+
+      <a class="footer-brand" href="https://zatana.cl" aria-label="Zatana inicio">
+        <img src="ElementosPaginaWeb/Logo%20Nabvar.png" alt="Zatana" />
+      </a>
+
+      <nav aria-label="Footer">
+        <ul class="footer-nav">
+          <li><a href="https://zatana.cl/figurines_moda">Figurines</a></li>
+          <li><a href="https://zatana.cl/fichas_tecnicas">Fichas</a></li>
+          <li><a href="https://zatana.cl/trabajos_analogos">Análogos</a></li>
+          <li><a href="mailto:renatatrujillov@gmail.com">Contacto</a></li>
+        </ul>
+      </nav>
+
+      <div class="footer-copy">
+        <p>© 2025 Renata Trujillo. Todos los derechos reservados.</p>
+        <p>Santiago, Chile.</p>
+      </div>
+
+    </div>
+  </footer>
+
+  <script>
+    /* ─ Preloader ─ */
+    (function () {
+      const bar  = document.getElementById('pl-bar');
+      const pct  = document.getElementById('pl-pct');
+      const pre  = document.getElementById('preloader');
+      let prog = 0;
+
+      const iv = setInterval(() => {
+        prog += Math.random() * 18 + 6;
+        if (prog >= 100) { prog = 100; clearInterval(iv); }
+        bar.style.width = prog + '%';
+        pct.textContent = Math.round(prog) + '%';
+        if (prog === 100) {
+          setTimeout(() => pre.classList.add('hidden'), 300);
+        }
+      }, 120);
+
+      window.addEventListener('load', () => {
+        prog = 100;
+        bar.style.width = '100%';
+        pct.textContent = '100%';
+        setTimeout(() => pre.classList.add('hidden'), 400);
+      });
+    })();
   </script>
 
 </body>
