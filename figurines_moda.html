@@ -177,6 +177,14 @@
       transform: translateY(-4px);
       box-shadow: 0 16px 48px rgba(180,80,130,0.22);
     }
+    .filmstrip__item.active {
+      transform: scale(1.08);
+      box-shadow: 0 18px 50px rgba(180,80,130,0.3);
+      z-index: 2;
+    }
+    .filmstrip__item.active:hover {
+      transform: scale(1.1);
+    }
     .filmstrip__item img {
       height: 100%;
       width: auto;
@@ -425,7 +433,7 @@
 
     images.forEach((im, i) => {
       const item = document.createElement('div');
-      item.className = 'filmstrip__item';
+      item.className = 'filmstrip__item' + (i === 0 ? ' active' : '');
       item.dataset.index = i;
       item.onclick = () => openLightbox(i);
       item.innerHTML = `<img src="${im.src}" alt="${im.alt}" loading="lazy" />`;
@@ -497,6 +505,9 @@
 
     function setFilmstripActive(i) {
       current = i;
+      Array.from(filmstripEl.children).forEach((item, idx) => {
+        item.classList.toggle('active', idx === i);
+      });
       document.querySelectorAll('#fs-track .carousel-timeline__diamond').forEach(d => {
         d.classList.toggle('active', parseInt(d.dataset.index) === i);
       });
