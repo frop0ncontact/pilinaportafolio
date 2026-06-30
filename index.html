@@ -70,12 +70,11 @@
       box-shadow: var(--shadow-card);
       width: 100%;
       max-width: 960px;
-      padding: 48px 52px 44px;
+      padding: 0;
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 1fr 340px;
       grid-template-rows: auto;
-      column-gap: 40px;
-      row-gap: 0;
+      overflow: hidden;
       position: relative;
     }
 
@@ -84,6 +83,7 @@
       display: flex;
       flex-direction: column;
       gap: 20px;
+      padding: 48px 44px 44px;
     }
 
     .eyebrow {
@@ -198,36 +198,46 @@
     .card__right {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 18px;
-      min-width: 260px;
-      max-width: 320px;
+      align-items: stretch;
+      background: linear-gradient(160deg, #f8d8ed 0%, #f0c4e0 100%);
+      position: relative;
     }
 
-    /* Avatar circle */
+    /* Avatar — fills the column */
     .avatar-wrap {
-      width: 257px;
-      height: 257px;
-      border-radius: var(--radius-avatar);
+      width: 100%;
+      flex: 1;
+      min-height: 320px;
+      border-radius: 0;
       border: none;
-      flex-shrink: 0;
       background: transparent;
-      overflow: visible;
-      /* sin padding — el borde ya está dibujado en la imagen */
+      overflow: hidden;
       cursor: pointer;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: transform 0.3s ease;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
     }
 
-    .avatar-wrap:hover {
-      transform: scale(1.07);
-      box-shadow: 0 8px 28px rgba(180, 80, 130, 0.28);
-    }
+    .avatar-wrap:hover { transform: scale(1.03); }
 
     .avatar-wrap img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
+      object-position: top center;
       display: block;
+    }
+
+    /* Info strip at bottom of right column */
+    .card__right-info {
+      padding: 20px 24px;
+      background: rgba(252, 232, 243, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      border-top: 1px solid rgba(212, 138, 184, 0.2);
     }
 
     /* Degree badge */
@@ -458,30 +468,28 @@
     /* ─── Responsive ─── */
     @media (max-width: 680px) {
       body { padding: 80px 14px 28px; }
-
       .navbar { padding: 0 20px; }
-
       .nav-links, .nav-divider { display: none; }
-
       .nav-hamburger { display: flex; }
 
       .card {
         grid-template-columns: 1fr;
-        padding: 36px 28px 36px;
-        row-gap: 32px;
+        grid-template-rows: auto auto;
       }
 
+      /* En mobile: avatar arriba a pantalla completa, luego texto */
       .card__right {
-        max-width: 100%;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
         order: -1;
+        min-height: 320px;
+        border-radius: var(--radius-card) var(--radius-card) 0 0;
       }
 
       .avatar-wrap {
-        width: 150px;
-        height: 150px;
+        min-height: 260px;
+      }
+
+      .card__left {
+        padding: 32px 24px 28px;
       }
 
       .name { font-size: clamp(2.6rem, 12vw, 4rem); }
@@ -491,8 +499,6 @@
         align-items: flex-start;
         gap: 10px;
       }
-
-      .squiggle { display: none; }
     }
 
     /* ─── Zatana logo over the card ─── */
@@ -963,7 +969,10 @@
     <!-- ── RIGHT ── -->
     <aside class="card__right" aria-label="Perfil y contacto">
 
-      <div class="avatar-wrap" onclick="openLightbox()" role="button" tabindex="0" aria-label="Ver ilustración en pantalla completa" onkeydown="if(event.key==='Enter')openLightbox()">
+      <!-- Avatar ocupa todo el espacio superior -->
+      <div class="avatar-wrap" onclick="openLightbox()" role="button" tabindex="0"
+        aria-label="Ver ilustración en pantalla completa"
+        onkeydown="if(event.key==='Enter')openLightbox()">
         <img
           src="ElementosPaginaWeb/Headshot.png"
           alt="Ilustración de Renata Trujillo"
@@ -971,49 +980,49 @@
         />
       </div>
 
-      <div class="degree-block">
-        <p class="degree-label">Título en:</p>
-        <p class="degree-text">Diseño de vestuario<br>mención alta costura<br><small style="font-size:0.78rem;opacity:0.8;">AIEP · 2022–2026</small></p>
+      <!-- Info strip debajo del avatar -->
+      <div class="card__right-info">
+
+        <div class="degree-block">
+          <p class="degree-label">Título en:</p>
+          <p class="degree-text">Diseño de vestuario<br>mención alta costura<br><small style="font-size:0.78rem;opacity:0.8;">AIEP · 2022–2026</small></p>
+        </div>
+
+        <nav class="social-links" aria-label="Redes sociales">
+          <a class="social-link" href="tel:+56979971173">
+            <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.86 19.86 0 0 1 3.09 4.18 2 2 0 0 1 5.09 2h3a2 2 0 0 1 2 1.72 12.05 12.05 0 0 0 .66 2.68 2 2 0 0 1-.45 2.11L9.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.05 12.05 0 0 0 2.68.66A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            +56 9 7997 1173
+          </a>
+          <a class="social-link" href="https://www.instagram.com/zatana._" target="_blank" rel="noopener noreferrer">
+            <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+            </svg>
+            zatana._
+          </a>
+          <a class="social-link" href="mailto:renatatrujillov@gmail.com">
+            <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <polyline points="2,4 12,13 22,4"/>
+            </svg>
+            renatatrujillov@gmail.com
+          </a>
+        </nav>
+
+        <button class="cv-btn" onclick="openCV()" aria-label="Ver curriculum vitae">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="9" y1="13" x2="15" y2="13"/>
+            <line x1="9" y1="17" x2="13" y2="17"/>
+          </svg>
+          Ver mi CV
+        </button>
+
       </div>
-
-      <nav class="social-links" aria-label="Redes sociales">
-
-        <a class="social-link" href="tel:+56979971173">
-          <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.86 19.86 0 0 1 3.09 4.18 2 2 0 0 1 5.09 2h3a2 2 0 0 1 2 1.72 12.05 12.05 0 0 0 .66 2.68 2 2 0 0 1-.45 2.11L9.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.05 12.05 0 0 0 2.68.66A2 2 0 0 1 22 16.92z"/>
-          </svg>
-          +56 9 7997 1173
-        </a>
-
-        <a class="social-link" href="https://www.instagram.com/zatana._" target="_blank" rel="noopener noreferrer">
-          <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-            <circle cx="12" cy="12" r="4"/>
-            <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
-          </svg>
-          zatana._
-        </a>
-
-        <a class="social-link" href="mailto:renatatrujillov@gmail.com">
-          <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="2" y="4" width="20" height="16" rx="2"/>
-            <polyline points="2,4 12,13 22,4"/>
-          </svg>
-          renatatrujillov@gmail.com
-        </a>
-
-      </nav>
-
-      <!-- Botón CV -->
-      <button class="cv-btn" onclick="openCV()" aria-label="Ver curriculum vitae">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="9" y1="13" x2="15" y2="13"/>
-          <line x1="9" y1="17" x2="13" y2="17"/>
-        </svg>
-        Ver mi CV
-      </button>
 
     </aside>
 
