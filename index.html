@@ -815,8 +815,8 @@
     }
     .carousel-mosaic img {
       width: 100%;
-      height: 220px;
-      object-fit: cover;
+      height: auto;
+      object-fit: contain;
       display: block;
       border-radius: 14px;
       box-shadow: var(--shadow-card);
@@ -840,7 +840,6 @@
 
     @media (max-width: 680px) {
       .carousel-wrap { padding: 0; }
-      .carousel-mosaic img { height: 170px; }
       .carousel-arrow { width: 38px; height: 38px; font-size: 1.1rem; }
       .carousel-title { font-size: 2rem; }
     }
@@ -1416,7 +1415,6 @@
 
       <!-- Timeline: 1 diamante por categoría -->
       <div class="carousel-timeline">
-        <span class="carousel-timeline__year">2022 – 2025</span>
         <div class="carousel-timeline__track" id="c-timeline-track">
           <div class="carousel-timeline__line"></div>
           <button class="carousel-timeline__diamond active" data-index="0" onclick="goTo(0)" aria-label="Figurines de Moda"></button>
@@ -1446,10 +1444,8 @@
       <!-- Mosaico de imágenes -->
       <div class="carousel-mosaic-wrap">
         <div class="carousel-mosaic" id="c-mosaic">
-          <img src="Trabajos/Figurines_Moda/1.webp" data-index="0" alt="" loading="lazy" onerror="this.src='https://i.imgur.com/n2Jwp9F.png'" onclick="openMosaicLb(0)" style="cursor:zoom-in" />
-          <img src="Trabajos/Figurines_Moda/2.webp" data-index="1" alt="" loading="lazy" onerror="this.src='https://i.imgur.com/n2Jwp9F.png'" onclick="openMosaicLb(1)" style="cursor:zoom-in" />
-          <img src="Trabajos/Figurines_Moda/3.webp" data-index="2" alt="" loading="lazy" onerror="this.src='https://i.imgur.com/n2Jwp9F.png'" onclick="openMosaicLb(2)" style="cursor:zoom-in" />
-          <img src="Trabajos/Figurines_Moda/4.webp" data-index="3" alt="" loading="lazy" onerror="this.src='https://i.imgur.com/n2Jwp9F.png'" onclick="openMosaicLb(3)" style="cursor:zoom-in" />
+          <img src="Trabajos/Figurines_Moda/3.webp" data-index="0" alt="" loading="lazy" onerror="this.src='https://i.imgur.com/n2Jwp9F.png'" onclick="openMosaicLb(0)" style="cursor:zoom-in" />
+          <img src="Trabajos/Figurines_Moda/4.webp" data-index="1" alt="" loading="lazy" onerror="this.src='https://i.imgur.com/n2Jwp9F.png'" onclick="openMosaicLb(1)" style="cursor:zoom-in" />
         </div>
       </div>
 
@@ -1517,8 +1513,6 @@
         desc:  'Ilustraciones de moda a mano alzada: propuestas de vestuario, siluetas y colecciones. Cada figurín traduce una idea en imagen con identidad y técnica.',
         btn:   { text: 'LEER MÁS', href: 'https://zatana.cl/figurines_moda', soon: false },
         images: [
-          'Trabajos/Figurines_Moda/1.webp',
-          'Trabajos/Figurines_Moda/2.webp',
           'Trabajos/Figurines_Moda/3.webp',
           'Trabajos/Figurines_Moda/4.webp',
         ]
