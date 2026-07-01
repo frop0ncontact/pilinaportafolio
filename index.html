@@ -1513,6 +1513,89 @@
     }
     .print-stack.is-closed .print-stack__toggle { transform: rotate(180deg); }
 
+    /* Botón para borrar todos los stickers pegados en la página */
+    .print-stack__clear {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      z-index: 5;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--pink-dark, #b23a6b);
+      border: 2px solid var(--pink-dark, #b23a6b);
+      box-shadow: 0 2px 8px rgba(120, 40, 80, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      touch-action: none;
+      user-select: none;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .print-stack__clear svg { width: 14px; height: 14px; }
+    .print-stack__clear:hover { background: var(--pink-dark, #b23a6b); color: #fff; }
+    .print-stack.is-closed .print-stack__clear { opacity: 0; pointer-events: none; }
+
+    /* Modal de confirmación para borrar todos los stickers */
+    .sticker-confirm-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(30, 15, 20, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .sticker-confirm-overlay.is-visible { display: flex; }
+    .sticker-confirm-box {
+      background: var(--card-bg, #fff);
+      border-radius: 16px;
+      padding: 26px 24px;
+      max-width: 320px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 14px 40px rgba(120, 40, 80, 0.35);
+      font-family: var(--font-body);
+    }
+    .sticker-confirm-box h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+      color: var(--pink-dark, #b23a6b);
+    }
+    .sticker-confirm-box p {
+      margin: 0 0 20px;
+      font-size: 0.88rem;
+      opacity: 0.8;
+      line-height: 1.4;
+    }
+    .sticker-confirm-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .sticker-confirm-actions button {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: none;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+    .sticker-confirm-actions button:hover { opacity: 0.85; }
+    .sticker-confirm-cancel {
+      background: rgba(120, 40, 80, 0.1);
+      color: var(--pink-dark, #b23a6b);
+    }
+    .sticker-confirm-delete {
+      background: #d64d4d;
+      color: #fff;
+    }
+
     /* Hint sutil: aparece unas veces y desaparece sola,
        o se puede volver a mostrar con :hover en desktop */
     .print-stack__hint {
@@ -1630,8 +1713,10 @@
       filter: drop-shadow(0 0 0 2px #fff) drop-shadow(0 0 0 4px var(--pink-dark, #b23a6b)) drop-shadow(0 6px 14px rgba(120, 40, 80, 0.22));
     }
 
-    /* Wrapper que contiene el sticker + su toolbar de edición,
-       para que la toolbar se mueva junto con el sticker. */
+    /* Wrapper que contiene el sticker + su marco de edición estilo
+       Canva, para que todo se mueva junto con el sticker. El wrap
+       NO tiene tamaño propio: hereda el del <img> que contiene, así
+       el marco/handles quedan siempre pegados al tamaño real. */
     .sticker-wrap {
       position: absolute;
       z-index: 45;
@@ -1639,13 +1724,91 @@
     .sticker-wrap.is-dragging { z-index: 999; }
     .sticker-wrap.is-selected { z-index: 998; }
 
-    /* Toolbar contextual: aparece sobre el sticker seleccionado */
+    /* Marco punteado tipo Canva: solo visible con el sticker seleccionado */
+    .sticker-frame {
+      position: absolute;
+      inset: 0;
+      border: 1.5px dashed rgba(178, 58, 107, 0.9);
+      border-radius: 2px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.12s ease;
+    }
+    .sticker-wrap.is-selected .sticker-frame { opacity: 1; }
+
+    /* Handles de las 4 esquinas: redimensionan proporcionalmente
+       arrastrando desde el punto opuesto (igual que en Canva) */
+    .sticker-handle {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: #fff;
+      border: 2px solid var(--pink-dark, #b23a6b);
+      border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(120, 40, 80, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.12s ease;
+      touch-action: none;
+    }
+    .sticker-wrap.is-selected .sticker-handle {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .sticker-handle--nw { top: -7px;    left: -7px;   cursor: nwse-resize; }
+    .sticker-handle--ne { top: -7px;    right: -7px;  cursor: nesw-resize; }
+    .sticker-handle--sw { bottom: -7px; left: -7px;   cursor: nesw-resize; }
+    .sticker-handle--se { bottom: -7px; right: -7px;  cursor: nwse-resize; }
+
+    /* Handle de rotación: círculo arriba del marco, unido por una
+       línea fina, igual que Canva/Figma */
+    .sticker-rotate-stem {
+      position: absolute;
+      top: -32px;
+      left: 50%;
+      width: 1.5px;
+      height: 24px;
+      background: rgba(178, 58, 107, 0.9);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.12s ease;
+    }
+    .sticker-rotate-handle {
+      position: absolute;
+      top: -44px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid var(--pink-dark, #b23a6b);
+      box-shadow: 0 1px 4px rgba(120, 40, 80, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.12s ease;
+      touch-action: none;
+    }
+    .sticker-rotate-handle svg { width: 12px; height: 12px; color: var(--pink-dark, #b23a6b); }
+    .sticker-wrap.is-selected .sticker-rotate-stem,
+    .sticker-wrap.is-selected .sticker-rotate-handle {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .sticker-rotate-handle:active { cursor: grabbing; }
+
+    /* Mini-toolbar lateral: flip H/V + borrar, junto al marco (no
+       encima, para no chocar con la mano al reescalar) */
     .sticker-toolbar {
       position: absolute;
-      bottom: calc(100% + 8px);
-      left: 50%;
-      transform: translateX(-50%) translateY(6px);
+      top: 0;
+      left: calc(100% + 10px);
       display: flex;
+      flex-direction: column;
       gap: 4px;
       background: rgba(30, 20, 25, 0.92);
       padding: 5px;
@@ -1653,14 +1816,14 @@
       box-shadow: 0 4px 14px rgba(120, 40, 80, 0.3);
       opacity: 0;
       pointer-events: none;
+      transform: translateX(-4px);
       transition: opacity 0.15s ease, transform 0.15s ease;
-      white-space: nowrap;
       touch-action: none;
     }
     .sticker-wrap.is-selected .sticker-toolbar {
       opacity: 1;
       pointer-events: auto;
-      transform: translateX(-50%) translateY(0);
+      transform: translateX(0);
     }
     .sticker-toolbar__btn {
       width: 28px;
@@ -1682,28 +1845,6 @@
     .sticker-toolbar__btn:active { background: rgba(255, 255, 255, 0.36); }
     .sticker-toolbar__btn.is-danger:hover { background: #d64d4d; }
     .sticker-toolbar__btn svg { width: 15px; height: 15px; }
-
-    /* Manija para redimensionar (esquina inferior derecha) */
-    .sticker-resize-handle {
-      position: absolute;
-      right: -6px;
-      bottom: -6px;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: var(--pink-dark, #b23a6b);
-      border: 2px solid #fff;
-      box-shadow: 0 2px 6px rgba(120, 40, 80, 0.35);
-      cursor: nwse-resize;
-      touch-action: none;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.15s ease;
-    }
-    .sticker-wrap.is-selected .sticker-resize-handle {
-      opacity: 1;
-      pointer-events: auto;
-    }
 
     /* Overlay invisible para cerrar la selección al tocar fuera */
     .sticker-deselect-catcher {
@@ -2412,6 +2553,9 @@
   <!-- ── PRINTS: libreta de stickers, fija a la pantalla (desktop + mobile) ── -->
   <div class="print-stack" id="print-stack" aria-hidden="true">
     <button class="print-stack__toggle" id="print-stack-toggle" type="button" aria-label="Abrir/cerrar libreta de stickers">✕</button>
+    <button class="print-stack__clear" id="print-stack-clear" type="button" aria-label="Borrar todos los stickers de la página">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+    </button>
     <div class="print-stack__hint" id="print-stack-hint"><span class="print-stack__hint-hand">👆</span> Arrástrame a la página</div>
     <div class="print-stack__layer"></div>
     <div class="print-stack__layer"></div>
@@ -2419,6 +2563,18 @@
     <span class="print-stack__badge" id="print-stack-badge">1/6</span>
   </div>
   <div class="sticker-deselect-catcher" id="sticker-deselect-catcher"></div>
+
+  <!-- ── Modal de confirmación: borrar todos los stickers ── -->
+  <div class="sticker-confirm-overlay" id="sticker-confirm-overlay">
+    <div class="sticker-confirm-box">
+      <h3>¿Borrar todos los stickers?</h3>
+      <p>Vas a quitar todos los stickers que has pegado en esta página. Esta acción no se puede deshacer.</p>
+      <div class="sticker-confirm-actions">
+        <button type="button" class="sticker-confirm-cancel" id="sticker-confirm-cancel">Cancelar</button>
+        <button type="button" class="sticker-confirm-delete" id="sticker-confirm-delete">Borrar todos</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     /* ─ Prints: libreta de stickers (dispensador) ────────────────
@@ -2639,17 +2795,14 @@
         wrap.appendChild(el);
         applyTransform(wrap, data);
 
-        /* ── Toolbar contextual ── */
+        /* ── Marco punteado estilo Canva (solo visible seleccionado) ── */
+        var frame = document.createElement('div');
+        frame.className = 'sticker-frame';
+        wrap.appendChild(frame);
+
+        /* ── Toolbar lateral: flip H/V + borrar ── */
         var toolbar = document.createElement('div');
         toolbar.className = 'sticker-toolbar';
-
-        var btnRotate = makeToolbarBtn('rotate', 'Rotar');
-        btnRotate.addEventListener('click', function (e) {
-          e.stopPropagation();
-          data.rot = ((data.rot || 0) + 30) % 360;
-          applyTransform(wrap, data);
-          savePlaced();
-        });
 
         var btnFlipH = makeToolbarBtn('flipH', 'Voltear horizontal');
         btnFlipH.addEventListener('click', function (e) {
@@ -2673,45 +2826,98 @@
           removePlaced(data, wrap);
         });
 
-        toolbar.appendChild(btnRotate);
         toolbar.appendChild(btnFlipH);
         toolbar.appendChild(btnFlipV);
         toolbar.appendChild(btnDelete);
         wrap.appendChild(toolbar);
 
-        /* ── Manija de redimensionar ── */
-        var resizeHandle = document.createElement('div');
-        resizeHandle.className = 'sticker-resize-handle';
-        resizeHandle.setAttribute('aria-label', 'Redimensionar sticker');
-        wrap.appendChild(resizeHandle);
+        /* ── Handles de esquina: redimensionan proporcionalmente,
+           ancladas al punto opuesto de la esquina arrastrada, igual
+           que en Canva/Figma. Como el sticker gira, el arrastre se
+           proyecta sobre la diagonal ya rotada del marco, así el
+           tamaño responde de forma natural sin importar el ángulo. ── */
+        var corners = ['nw', 'ne', 'sw', 'se'];
+        corners.forEach(function (corner) {
+          var handle = document.createElement('div');
+          handle.className = 'sticker-handle sticker-handle--' + corner;
+          handle.setAttribute('aria-label', 'Redimensionar sticker');
+          wrap.appendChild(handle);
 
-        resizeHandle.addEventListener('pointerdown', function (e) {
+          handle.addEventListener('pointerdown', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            handle.setPointerCapture(e.pointerId);
+
+            var startScale = data.scale;
+            var rect = el.getBoundingClientRect();
+            var cx = rect.left + rect.width / 2;
+            var cy = rect.top + rect.height / 2;
+            var startDist = Math.hypot(e.clientX - cx, e.clientY - cy) || 1;
+
+            function onMove(ev) {
+              var dist = Math.hypot(ev.clientX - cx, ev.clientY - cy);
+              var newScale = startScale * (dist / startDist);
+              newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
+              data.scale = newScale;
+              applyTransform(wrap, data);
+            }
+            function onUp(ev) {
+              try { handle.releasePointerCapture(ev.pointerId); } catch (err) {}
+              handle.removeEventListener('pointermove', onMove);
+              handle.removeEventListener('pointerup', onUp);
+              handle.removeEventListener('pointercancel', onUp);
+              savePlaced();
+            }
+            handle.addEventListener('pointermove', onMove);
+            handle.addEventListener('pointerup', onUp);
+            handle.addEventListener('pointercancel', onUp);
+          });
+        });
+
+        /* ── Handle de rotación: círculo arriba del marco, se arrastra
+           en círculo alrededor del centro del sticker ── */
+        var rotateStem = document.createElement('div');
+        rotateStem.className = 'sticker-rotate-stem';
+        wrap.appendChild(rotateStem);
+
+        var rotateHandle = document.createElement('div');
+        rotateHandle.className = 'sticker-rotate-handle';
+        rotateHandle.setAttribute('aria-label', 'Rotar sticker');
+        rotateHandle.innerHTML = svgIcon('rotate');
+        wrap.appendChild(rotateHandle);
+
+        rotateHandle.addEventListener('pointerdown', function (e) {
           e.stopPropagation();
           e.preventDefault();
-          resizeHandle.setPointerCapture(e.pointerId);
-          var startScale = data.scale;
+          rotateHandle.setPointerCapture(e.pointerId);
+
           var rect = el.getBoundingClientRect();
           var cx = rect.left + rect.width / 2;
           var cy = rect.top + rect.height / 2;
-          var startDist = Math.hypot(e.clientX - cx, e.clientY - cy) || 1;
+          var startAngle = Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI;
+          var startRot = data.rot || 0;
 
-          function onResizeMove(ev) {
-            var dist = Math.hypot(ev.clientX - cx, ev.clientY - cy);
-            var newScale = startScale * (dist / startDist);
-            newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
-            data.scale = newScale;
+          function onMove(ev) {
+            var angle = Math.atan2(ev.clientY - cy, ev.clientX - cx) * 180 / Math.PI;
+            var delta = angle - startAngle;
+            var newRot = Math.round(startRot + delta);
+            // Se ajusta a pasos de 15° cuando queda cerca (como Canva),
+            // así es fácil dejarlo derecho o en diagonales exactas.
+            var snapped = Math.round(newRot / 15) * 15;
+            if (Math.abs(newRot - snapped) < 4) newRot = snapped;
+            data.rot = ((newRot % 360) + 360) % 360;
             applyTransform(wrap, data);
           }
-          function onResizeUp(ev) {
-            try { resizeHandle.releasePointerCapture(ev.pointerId); } catch (err) {}
-            resizeHandle.removeEventListener('pointermove', onResizeMove);
-            resizeHandle.removeEventListener('pointerup', onResizeUp);
-            resizeHandle.removeEventListener('pointercancel', onResizeUp);
+          function onUp(ev) {
+            try { rotateHandle.releasePointerCapture(ev.pointerId); } catch (err) {}
+            rotateHandle.removeEventListener('pointermove', onMove);
+            rotateHandle.removeEventListener('pointerup', onUp);
+            rotateHandle.removeEventListener('pointercancel', onUp);
             savePlaced();
           }
-          resizeHandle.addEventListener('pointermove', onResizeMove);
-          resizeHandle.addEventListener('pointerup', onResizeUp);
-          resizeHandle.addEventListener('pointercancel', onResizeUp);
+          rotateHandle.addEventListener('pointermove', onMove);
+          rotateHandle.addEventListener('pointerup', onUp);
+          rotateHandle.addEventListener('pointercancel', onUp);
         });
 
         /* ── Selección + arrastre para reposicionar ── */
@@ -2750,7 +2956,7 @@
             data.top  = parseFloat(wrap.style.top);
             savePlaced();
           } else {
-            // Tap/click sin arrastre → seleccionar (mostrar toolbar)
+            // Tap/click sin arrastre → seleccionar (mostrar marco + handles)
             if (selectedWrap && selectedWrap !== wrap) {
               selectedWrap.classList.remove('is-selected');
             }
@@ -2768,6 +2974,40 @@
 
       // Repone en la página los stickers que ya estaban pegados
       placedList.forEach(createPlacedEl);
+
+      /* ══════════════ Borrar todos los stickers (con confirmación) ══════════════ */
+      var stackClear     = document.getElementById('print-stack-clear');
+      var confirmOverlay = document.getElementById('sticker-confirm-overlay');
+      var confirmCancel  = document.getElementById('sticker-confirm-cancel');
+      var confirmDelete  = document.getElementById('sticker-confirm-delete');
+
+      function openClearConfirm() {
+        if (placedList.length === 0) return; // nada que borrar
+        confirmOverlay.classList.add('is-visible');
+      }
+      function closeClearConfirm() {
+        confirmOverlay.classList.remove('is-visible');
+      }
+      function clearAllStickers() {
+        deselectAll();
+        document.querySelectorAll('.sticker-wrap').forEach(function (w) { w.remove(); });
+        placedList = [];
+        savePlaced();
+        closeClearConfirm();
+      }
+
+      if (stackClear) {
+        stackClear.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+        stackClear.addEventListener('click', function (e) {
+          e.stopPropagation();
+          openClearConfirm();
+        });
+      }
+      confirmCancel.addEventListener('click', closeClearConfirm);
+      confirmDelete.addEventListener('click', clearAllStickers);
+      confirmOverlay.addEventListener('pointerdown', function (e) {
+        if (e.target === confirmOverlay) closeClearConfirm();
+      });
 
       /* ══════════════ Arrastrar desde la libreta y pegar en la página ══════════════ */
       stack.addEventListener('pointerdown', function (e) {
