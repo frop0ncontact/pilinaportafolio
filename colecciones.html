@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Colecciones — Zatana</title>
+  <!-- Favicon (logo Zatana) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="ElementosPaginaWeb/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="ElementosPaginaWeb/favicon-16.png" />
+  <link rel="icon" href="ElementosPaginaWeb/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="ElementosPaginaWeb/favicon-180.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -360,14 +365,29 @@
     }
     .pdf-modal__close:hover { opacity: 1; }
     .pdf-modal__body {
-      flex: 1; overflow: auto; display: flex;
-      align-items: flex-start; justify-content: center;
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start;
       padding: 24px; position: relative;
+      gap: 18px; scroll-behavior: smooth;
     }
     .pdf-modal__body canvas {
       max-width: 100%; height: auto;
       box-shadow: 0 8px 32px rgba(0,0,0,0.18);
       display: block; border-radius: 4px; background: white;
+      flex-shrink: 0;
+    }
+    .pdf-page-wrap {
+      position: relative; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 40px;
+    }
+    .pdf-page-wrap__num {
+      position: absolute; bottom: 8px; right: 10px;
+      background: rgba(60,10,35,0.72); color: #fff;
+      font-family: var(--font-body); font-size: 0.72rem; font-weight: 600;
+      padding: 2px 9px; border-radius: 999px; pointer-events: none;
+      letter-spacing: 0.03em;
     }
     .pdf-modal__loading {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
@@ -468,7 +488,6 @@
         </div>
       </div>
       <div class="pdf-modal__body" id="pdf-modal-body">
-        <canvas id="pdf-modal-canvas"></canvas>
         <span class="pdf-modal__loading" id="pdf-modal-loading">Cargando…</span>
       </div>
     </div>
@@ -666,9 +685,9 @@
     }
     collections.forEach((col, i) => renderThumb(i));
 
-    /* ── PDF viewer modal: full multi-page navigation, zoom, download ── */
+    /* ── PDF viewer modal: scroll continuo (todas las páginas apiladas) ── */
     const pdfModalEl     = document.getElementById('pdf-modal');
-    const pdfCanvas      = document.getElementById('pdf-modal-canvas');
+    const pdfBodyEl      = document.getElementById('pdf-modal-body');
     const pdfLoadingEl   = document.getElementById('pdf-modal-loading');
     const pdfTitleEl     = document.getElementById('pdf-modal-title');
     const pdfPageLabelEl = document.getElementById('pdf-page-label');
@@ -680,10 +699,12 @@
     const PDF_ZOOM_MIN = 0.5, PDF_ZOOM_MAX = 3, PDF_ZOOM_STEP = 0.25;
     let pdfModalIndex   = 0;
     let pdfModalDoc     = null;
-    let pdfModalPage    = 1;
+    let pdfModalPage    = 1;   // página actualmente visible (para el contador y los botones)
     let pdfModalPages   = 1;
     let pdfModalScale   = 1;
-    let pdfRenderToken  = 0; // guards against out-of-order renders when paging fast
+    let pdfRenderToken  = 0;   // invalida renders viejos al reabrir / cambiar zoom
+    let pdfPageWraps    = [];  // contenedores .pdf-page-wrap por página
+    let pdfObserver     = null;
 
     function openPdfModal(i) {
       pdfModalIndex = i;
@@ -696,9 +717,11 @@
       pdfDownloadEl.href = fileUrl;
       pdfDownloadEl.setAttribute('download', collections[i].title + '.pdf');
 
-      pdfCanvas.style.display = 'none';
-      pdfLoadingEl.style.display = 'block';
-      pdfLoadingEl.textContent = 'Cargando…';
+      // Reset del cuerpo
+      if (pdfObserver) { pdfObserver.disconnect(); pdfObserver = null; }
+      pdfPageWraps = [];
+      pdfBodyEl.innerHTML = '<span class="pdf-modal__loading" id="pdf-modal-loading">Cargando…</span>';
+      const loading = document.getElementById('pdf-modal-loading');
 
       pdfModalEl.classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -706,55 +729,114 @@
       getPdfDoc(i).then(pdf => {
         pdfModalDoc   = pdf;
         pdfModalPages = pdf.numPages;
-        renderPdfModalPage();
+        buildPdfPages();
       }).catch(err => {
         console.error('No se pudo abrir el PDF:', collections[i].file, err);
-        pdfLoadingEl.textContent = 'No se pudo cargar este PDF.';
+        if (loading) loading.textContent = 'No se pudo cargar este PDF.';
       });
     }
 
-    function renderPdfModalPage() {
-      if (!pdfModalDoc) return;
+    // Crea un contenedor + canvas por cada página y los renderiza.
+    function buildPdfPages() {
       const token = ++pdfRenderToken;
-      pdfPageLabelEl.textContent = pdfModalPage + ' / ' + pdfModalPages;
-      pdfPrevBtn.disabled = pdfModalPage <= 1;
-      pdfNextBtn.disabled = pdfModalPage >= pdfModalPages;
+      pdfBodyEl.innerHTML = '';
+      pdfPageWraps = [];
 
-      pdfModalDoc.getPage(pdfModalPage).then(page => {
-        if (token !== pdfRenderToken) return; // a newer page request superseded this one
-        const dpr = window.devicePixelRatio || 1;
-        const viewport = page.getViewport({ scale: pdfModalScale * dpr });
-        pdfCanvas.width  = viewport.width;
-        pdfCanvas.height = viewport.height;
-        pdfCanvas.style.width  = (viewport.width / dpr) + 'px';
-        pdfCanvas.style.height = (viewport.height / dpr) + 'px';
+      for (let p = 1; p <= pdfModalPages; p++) {
+        const wrap = document.createElement('div');
+        wrap.className = 'pdf-page-wrap';
+        wrap.dataset.page = p;
+        const canvas = document.createElement('canvas');
+        wrap.appendChild(canvas);
+        if (pdfModalPages > 1) {
+          const num = document.createElement('span');
+          num.className = 'pdf-page-wrap__num';
+          num.textContent = p + ' / ' + pdfModalPages;
+          wrap.appendChild(num);
+        }
+        pdfBodyEl.appendChild(wrap);
+        pdfPageWraps.push(wrap);
+      }
 
-        return page.render({ canvasContext: pdfCanvas.getContext('2d'), viewport }).promise;
-      }).then(() => {
-        if (token !== pdfRenderToken) return;
-        pdfLoadingEl.style.display = 'none';
-        pdfCanvas.style.display = 'block';
-      }).catch(err => {
-        console.error('No se pudo renderizar la página', pdfModalPage, err);
+      // Observa qué página está más visible para actualizar el contador y los botones
+      setupPdfObserver();
+
+      // Renderiza todas las páginas en orden
+      renderAllPdfPages(token);
+      updatePdfPageLabel(1);
+      pdfBodyEl.scrollTop = 0;
+    }
+
+    function renderAllPdfPages(token) {
+      const dpr = window.devicePixelRatio || 1;
+      // Cadena secuencial: cada página espera a la anterior (evita saturar en PDFs grandes)
+      let chain = Promise.resolve();
+      pdfPageWraps.forEach((wrap, idx) => {
+        const pageNum = idx + 1;
+        chain = chain.then(() => {
+          if (token !== pdfRenderToken) return;
+          return pdfModalDoc.getPage(pageNum).then(page => {
+            if (token !== pdfRenderToken) return;
+            const canvas   = wrap.querySelector('canvas');
+            const viewport = page.getViewport({ scale: pdfModalScale * dpr });
+            canvas.width  = viewport.width;
+            canvas.height = viewport.height;
+            canvas.style.width  = (viewport.width / dpr) + 'px';
+            canvas.style.height = (viewport.height / dpr) + 'px';
+            return page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+          });
+        });
       });
     }
 
+    function setupPdfObserver() {
+      if (pdfObserver) pdfObserver.disconnect();
+      pdfObserver = new IntersectionObserver(entries => {
+        // La entrada con mayor ratio de visibilidad manda
+        let best = null;
+        entries.forEach(e => {
+          if (e.isIntersecting && (!best || e.intersectionRatio > best.intersectionRatio)) best = e;
+        });
+        if (best) {
+          const p = parseInt(best.target.dataset.page, 10);
+          if (p && p !== pdfModalPage) updatePdfPageLabel(p);
+        }
+      }, { root: pdfBodyEl, threshold: [0.25, 0.5, 0.75] });
+      pdfPageWraps.forEach(w => pdfObserver.observe(w));
+    }
+
+    function updatePdfPageLabel(p) {
+      pdfModalPage = p;
+      pdfPageLabelEl.textContent = p + ' / ' + pdfModalPages;
+      pdfPrevBtn.disabled = p <= 1;
+      pdfNextBtn.disabled = p >= pdfModalPages;
+    }
+
+    // Los botones ahora hacen scroll suave a la página destino
+    function scrollToPdfPage(p) {
+      const wrap = pdfPageWraps[p - 1];
+      if (wrap) wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
     function pdfNextPage() {
-      if (pdfModalPage < pdfModalPages) { pdfModalPage++; renderPdfModalPage(); }
+      if (pdfModalPage < pdfModalPages) scrollToPdfPage(pdfModalPage + 1);
     }
     function pdfPrevPage() {
-      if (pdfModalPage > 1) { pdfModalPage--; renderPdfModalPage(); }
+      if (pdfModalPage > 1) scrollToPdfPage(pdfModalPage - 1);
     }
     function pdfZoom(dir) {
       pdfModalScale = Math.min(PDF_ZOOM_MAX, Math.max(PDF_ZOOM_MIN, pdfModalScale + dir * PDF_ZOOM_STEP));
       pdfZoomLabelEl.textContent = Math.round(pdfModalScale * 100) + '%';
-      renderPdfModalPage();
+      // Re-renderiza todas las páginas al nuevo zoom, manteniendo posición aproximada
+      const current = pdfModalPage;
+      renderAllPdfPages(++pdfRenderToken);
+      requestAnimationFrame(() => scrollToPdfPage(current));
     }
 
     function closePdfModal() {
       pdfModalEl.classList.remove('open');
       document.body.style.overflow = '';
       pdfModalDoc = null;
+      if (pdfObserver) { pdfObserver.disconnect(); pdfObserver = null; }
     }
 
     function handlePdfModalClick(e) {
@@ -764,8 +846,8 @@
     document.addEventListener('keydown', e => {
       if (!pdfModalEl.classList.contains('open')) return;
       if (e.key === 'Escape')     closePdfModal();
-      if (e.key === 'ArrowRight') pdfNextPage();
-      if (e.key === 'ArrowLeft')  pdfPrevPage();
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); pdfNextPage(); }
+      if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); pdfPrevPage(); }
     });
 
     function toggleMenu(btn) {
