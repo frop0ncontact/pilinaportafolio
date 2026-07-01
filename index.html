@@ -382,8 +382,52 @@
     .avatar-face--back {
       transform: rotateY(180deg);
     }
+    /* La foto original es panorámica (1920×1080) con la cara arriba;
+       con "cover" simple se ve casi el cuerpo entero. Se posiciona y
+       amplía manualmente para encuadrar la cara centrada, tipo retrato. */
     .avatar-face--back img {
+      position: absolute;
+      width: 256%;
+      height: 144%;
+      max-width: none;
+      left: -81.6%;
+      top: 0;
+      object-fit: cover;
       object-position: center center;
+    }
+
+    /* Hint de interacción: sustituye al tooltip. Vive fuera de .avatar-flip
+       para no rotar junto con la moneda, con un pulso sutil que invita
+       a hacer clic sin ser intrusivo. */
+    .avatar-hint {
+      position: absolute;
+      right: 2%;
+      bottom: 2%;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--pink-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(180, 80, 130, 0.35);
+      border: 2px solid var(--card-bg);
+      pointer-events: none;
+      z-index: 2;
+      animation: avatarHintPulse 2.6s ease-in-out infinite;
+    }
+    .avatar-hint svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: white;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    @keyframes avatarHintPulse {
+      0%, 100% { transform: scale(1);    box-shadow: 0 4px 14px rgba(180, 80, 130, 0.35); }
+      50%      { transform: scale(1.12); box-shadow: 0 4px 18px rgba(180, 80, 130, 0.5); }
     }
 
     /* Info strip at bottom of right column */
@@ -1556,8 +1600,18 @@
               />
             </div>
           </div>
+          <!-- Hint: indica que la moneda es interactiva (reemplaza al tooltip) -->
+          <div class="avatar-hint" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M17 2.1l4 4-4 4"/>
+              <path d="M3 12.2v-2a4 4 0 0 1 4-4h14"/>
+              <path d="M7 21.9l-4-4 4-4"/>
+              <path d="M21 11.8v2a4 4 0 0 1-4 4H3"/>
+            </svg>
+          </div>
         </div>
       </div>
+
 
       <!-- Info strip debajo del avatar -->
       <div class="card__right-info">
@@ -2043,38 +2097,20 @@
     });
 
     /* ─ Avatar flip ─
-       El avatar alterna entre ilustración y foto real:
-       - Clic / tap / Enter: alterna el giro de forma manual y detiene
-         la alternancia automática.
-       - Auto-alternancia: mientras el usuario no haya interactuado,
-         cambia solo cada 5 segundos entre ambas caras. */
+       El avatar se mantiene en la ilustración (headshot) por defecto.
+       Clic / tap / Enter alterna hacia la foto real y viceversa. Un
+       pequeño hint animado (ver CSS .avatar-hint) indica que es
+       interactivo, ya que no hay tooltip ni cambio automático. */
     const avatarWrap = document.getElementById('avatar-wrap');
 
-    let avatarFlipped      = false;
-    let avatarAutoInterval = null;
-    let avatarUserControl  = false;
+    let avatarFlipped = false;
 
     function setAvatarFlipped(flipped) {
       avatarFlipped = flipped;
       avatarWrap.classList.toggle('is-flipped', flipped);
     }
 
-    function stopAvatarAutoCycle() {
-      clearInterval(avatarAutoInterval);
-      avatarAutoInterval = null;
-    }
-
-    function startAvatarAutoCycle() {
-      stopAvatarAutoCycle();
-      avatarAutoInterval = setInterval(() => {
-        if (avatarUserControl) { stopAvatarAutoCycle(); return; }
-        setAvatarFlipped(!avatarFlipped);
-      }, 5000);
-    }
-
     function handleAvatarClick(e) {
-      avatarUserControl = true;
-      stopAvatarAutoCycle();
       setAvatarFlipped(!avatarFlipped);
     }
 
@@ -2084,8 +2120,6 @@
         handleAvatarClick(e);
       }
     }
-
-    startAvatarAutoCycle();
 
     /* ─ Lightbox (se conserva para otras imágenes ampliables) ─ */
     function openLightbox() {
