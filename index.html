@@ -12,7 +12,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <style>
     /* ─── Reset ─── */
@@ -234,9 +233,10 @@
       transition: transform 0.7s cubic-bezier(.4, .2, .2, 1);
     }
 
-    /* Flip on hover (desktop) and when toggled (touch / keyboard) */
+    /* Flip on hover (desktop), when toggled (click/keyboard), or auto-hint */
     .avatar-wrap:hover .avatar-flip,
-    .avatar-wrap.is-flipped .avatar-flip {
+    .avatar-wrap.is-flipped .avatar-flip,
+    .avatar-wrap.avatar-auto-flip .avatar-flip {
       transform: rotateY(180deg);
     }
 
@@ -1407,9 +1407,10 @@
     <!-- ── RIGHT ── -->
     <aside class="card__right" aria-label="Perfil y contacto">
 
-      <!-- Avatar ocupa todo el espacio superior. Hover = flip a foto real -->
+      <!-- Avatar ocupa todo el espacio superior. Hover / clic = gira a foto real -->
       <div class="avatar-wrap" id="avatar-wrap" role="button" tabindex="0"
-        aria-label="Ilustración de Renata Trujillo. Pasa el cursor para ver la foto real."
+        aria-label="Ilustración de Renata Trujillo. Pasa el cursor o haz clic para ver la foto real."
+        title="Pasa el cursor o haz clic para ver la foto real"
         onclick="handleAvatarClick(event)"
         onkeydown="handleAvatarKey(event)">
         <div class="avatar-flip">
@@ -1493,6 +1494,8 @@
           <button class="carousel-timeline__diamond" data-index="1" onclick="goTo(1)" aria-label="Fichas Técnicas"></button>
           <div class="carousel-timeline__line"></div>
           <button class="carousel-timeline__diamond" data-index="2" onclick="goTo(2)" aria-label="Colecciones"></button>
+          <div class="carousel-timeline__line"></div>
+          <button class="carousel-timeline__diamond" data-index="3" onclick="goTo(3)" aria-label="Trabajos Generales"></button>
           <div class="carousel-timeline__line"></div>
           <!-- Traveling indicator -->
           <div class="carousel-timeline__indicator" id="c-indicator"></div>
@@ -1578,37 +1581,6 @@
     /* ─ Carrusel ─ */
     const PLACEHOLDER = 'https://i.imgur.com/n2Jwp9F.png';
 
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-    const pdfCoverCache = {}; // file url -> loaded pdfjs document, reused between re-renders
-
-    // Renders page 1 of each given PDF into the <canvas data-index="i"> elements
-    // just inserted into #c-mosaic, as a live cover thumbnail (same approach
-    // used on the Colecciones page).
-    function renderPdfCovers(files) {
-      const mosaic = document.getElementById('c-mosaic');
-      files.forEach((file, i) => {
-        const canvas = mosaic.querySelector(`canvas[data-index="${i}"]`);
-        if (!canvas) return;
-        const url = encodeURI(file);
-        const docPromise = pdfCoverCache[url] || (pdfCoverCache[url] = pdfjsLib.getDocument(url).promise);
-        docPromise
-          .then(pdf => pdf.getPage(1))
-          .then(page => {
-            const dpr = window.devicePixelRatio || 1;
-            const base = page.getViewport({ scale: 1 });
-            // Target roughly the mosaic tile's rendered height at native resolution.
-            const scale = (320 * dpr) / base.height;
-            const viewport = page.getViewport({ scale });
-            canvas.width  = viewport.width;
-            canvas.height = viewport.height;
-            return page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-          })
-          .catch(err => console.error('No se pudo renderizar la portada del PDF:', file, err));
-      });
-    }
-
     const slides = [
       {
         title: 'FIGURINES DE MODA',
@@ -1635,6 +1607,15 @@
         images: [
           'Trabajos/Colecciones/Col1.webp',
           'Trabajos/Colecciones/Col2.webp',
+        ]
+      },
+      {
+        title: 'TRABAJOS GENERALES',
+        desc:  'Trabajos, mockups y maquetas variadas de los diseños: prototipos, muestras y piezas que exploran materiales, volúmenes y acabados fuera de las categorías principales.',
+        btn:   { text: 'LEER MÁS', href: 'https://zatana.cl/trabajos_generales', soon: false },
+        images: [
+          'Trabajos/Trabajos_Generales/1.webp',
+          'Trabajos/Trabajos_Generales/2.webp',
         ]
       }
     ];
@@ -1702,13 +1683,7 @@
         btn.className   = 'carousel-leemas' + (s.btn.soon ? ' carousel-leemas--soon' : '');
 
         const mosaic = document.getElementById('c-mosaic');
-        if (s.pdfCovers && s.pdfCovers.length > 0) {
-          mosaic.className = 'carousel-mosaic';
-          mosaic.innerHTML = s.pdfCovers.map((_, i) =>
-            `<canvas data-index="${i}" style="cursor:pointer" onclick="location.href='${s.btn.href}'"></canvas>`
-          ).join('');
-          renderPdfCovers(s.pdfCovers);
-        } else if (s.images.length > 0) {
+        if (s.images.length > 0) {
           mosaic.className = 'carousel-mosaic';
           mosaic.innerHTML = s.images.map((src, i) =>
             `<img src="${src}" data-index="${i}" alt="" loading="lazy"
@@ -1911,38 +1886,60 @@
       }
     });
 
-    /* ─ Lightbox ─ */
-    /* ─ Avatar flip + lightbox ─
-       Desktop: el flip ocurre por :hover (CSS puro), clic abre el lightbox.
-       Táctil: primer toque voltea a la foto real, segundo toque abre el lightbox. */
-    const avatarIsTouch = window.matchMedia('(hover: none)').matches;
+    /* ─ Avatar flip ─
+       El avatar gira para mostrar la foto real (ya NO abre lightbox):
+       - Hover (desktop): gira mientras el cursor está encima (CSS :hover).
+       - Clic / tap / Enter: alterna el giro y lo fija.
+       - Auto-giro: cada cierto tiempo se voltea solo y vuelve, como pista
+         para quien no sabe que es interactivo. Se pausa al pasar el mouse. */
+    const avatarWrap = document.getElementById('avatar-wrap');
+
+    function toggleAvatarFlip() {
+      avatarWrap.classList.toggle('is-flipped');
+      pauseAvatarAutoFlip(); // si el usuario interactúa, no peleamos con el timer
+    }
 
     function handleAvatarClick(e) {
-      const wrap = document.getElementById('avatar-wrap');
-      if (avatarIsTouch) {
-        if (!wrap.classList.contains('is-flipped')) {
-          wrap.classList.add('is-flipped');
-          return; // primer toque: solo voltea
-        }
-        // segundo toque sobre la foto real: abrir lightbox
-      }
-      openLightbox();
+      toggleAvatarFlip();
     }
 
     function handleAvatarKey(e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        openLightbox();
+        toggleAvatarFlip();
       }
     }
 
-    // En táctil, tocar fuera del avatar lo regresa a la ilustración
-    document.addEventListener('click', e => {
-      if (!avatarIsTouch) return;
-      const wrap = document.getElementById('avatar-wrap');
-      if (wrap && !wrap.contains(e.target)) wrap.classList.remove('is-flipped');
-    });
+    /* ── Auto-giro periódico ── */
+    let avatarAutoTimer   = null;
+    let avatarAutoStopped = false;
 
+    function scheduleAvatarAutoFlip() {
+      if (avatarAutoStopped) return;
+      avatarAutoTimer = setTimeout(() => {
+        // No hacer el guiño si el usuario tiene el mouse encima (hover ya lo muestra)
+        // ni si lo dejó fijado manualmente
+        if (!avatarWrap.matches(':hover') && !avatarWrap.classList.contains('is-flipped')) {
+          avatarWrap.classList.add('avatar-auto-flip');
+          setTimeout(() => avatarWrap.classList.remove('avatar-auto-flip'), 2200);
+        }
+        scheduleAvatarAutoFlip();
+      }, 6000); // repite cada ~6 s
+    }
+
+    function pauseAvatarAutoFlip() {
+      avatarAutoStopped = true;
+      clearTimeout(avatarAutoTimer);
+      avatarWrap.classList.remove('avatar-auto-flip');
+    }
+
+    // Al interactuar con el mouse, detenemos el guiño automático definitivamente
+    avatarWrap.addEventListener('mouseenter', pauseAvatarAutoFlip);
+
+    // Arranca el ciclo tras una primera espera corta
+    setTimeout(scheduleAvatarAutoFlip, 3000);
+
+    /* ─ Lightbox (se conserva para otras imágenes ampliables) ─ */
     function openLightbox() {
       document.getElementById('lightbox').classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -1970,6 +1967,7 @@
           <li><a href="https://zatana.cl/figurines_moda">Figurines</a></li>
           <li><a href="https://zatana.cl/fichas_tecnicas">Fichas</a></li>
           <li><a href="https://zatana.cl/colecciones">Colecciones</a></li>
+          <li><a href="https://zatana.cl/trabajos_generales">Trabajos Generales</a></li>
           <li><a href="mailto:renatatrujillov@gmail.com">Contacto</a></li>
         </ul>
       </nav>
