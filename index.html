@@ -295,10 +295,20 @@
     }
     .sw-ps { background: #001e36; }
     .sw-ai { background: #2d0f00; }
-    .sw-md { background: #1a3a5c; }
     .sw-ps span { color: #31a8ff; }
     .sw-ai span { color: #ff9a00; }
-    .sw-md span { color: #a8d8ff; }
+
+    /* Modaris usa su logo real (no un badge de iniciales) */
+    .sw-md-logo {
+      height: 52px;
+      width: auto;
+      padding: 7px 12px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      object-fit: contain;
+      display: block;
+    }
 
     /* ─── Right column ─── */
     .card__right {
@@ -312,7 +322,7 @@
     .avatar-wrap {
       width: 100%;
       flex: 1;
-      min-height: 320px;
+      min-height: 416px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -321,10 +331,10 @@
       background: transparent;
     }
 
-    /* La "moneda": cuadrada (círculo), tamaño fluido acotado */
+    /* La "moneda": cuadrada (círculo), tamaño fluido acotado — +30% */
     .avatar-coin {
       position: relative;
-      width: min(72%, 260px);
+      width: min(94%, 338px);
       aspect-ratio: 1 / 1;
       border-radius: 50%;
       /* 3D flip context on the coin itself */
@@ -341,10 +351,8 @@
       will-change: transform;
     }
 
-    /* Gira: hover (desktop), clic/teclado (is-flipped) o guiño automático */
-    .avatar-wrap:hover .avatar-flip,
-    .avatar-wrap.is-flipped .avatar-flip,
-    .avatar-wrap.avatar-auto-flip .avatar-flip {
+    /* Gira: clic/teclado (is-flipped) o alternancia automática */
+    .avatar-wrap.is-flipped .avatar-flip {
       transform: rotateY(180deg);
     }
 
@@ -468,7 +476,7 @@
         padding: 12px;
       }
       .avatar-coin {
-        width: 150px;
+        width: 195px;
       }
 
       .name {
@@ -1515,9 +1523,7 @@
           <div class="sw-icon sw-ai" title="Adobe Illustrator">
             <span>Ai</span>
           </div>
-          <div class="sw-icon sw-md" title="Modaris (Lectra)">
-            <span>Md</span>
-          </div>
+          <img class="sw-md-logo" src="ElementosPaginaWeb/Modaris_Logo.png" alt="Modaris (Lectra)" title="Modaris (Lectra)" loading="lazy" />
         </div>
       </div>
 
@@ -1528,8 +1534,7 @@
 
       <!-- Avatar tipo moneda: hover / clic gira a la foto real -->
       <div class="avatar-wrap" id="avatar-wrap" role="button" tabindex="0"
-        aria-label="Ilustración de Renata Trujillo. Pasa el cursor o haz clic para ver la foto real."
-        title="Pasa el cursor o haz clic para ver la foto real"
+        aria-label="Ilustración de Renata Trujillo. Haz clic para ver la foto real."
         onclick="handleAvatarClick(event)"
         onkeydown="handleAvatarKey(event)">
         <div class="avatar-coin">
@@ -1779,6 +1784,13 @@
       if (isAnimating) return;
       isAnimating = true;
 
+      // Salvaguarda: si por algún motivo (pestaña en segundo plano, app
+      // minimizada en el celular, etc.) el flujo normal no libera el
+      // bloqueo, se fuerza su liberación para que el carrusel no quede
+      // "trabado" y siga respondiendo a toques/clics.
+      clearTimeout(renderCarousel._watchdog);
+      renderCarousel._watchdog = setTimeout(() => { isAnimating = false; }, 1500);
+
       const s       = slides[carouselCurrent];
       const content = document.getElementById('carousel-content');
       const outCls  = dir === 'l' ? 'c-out'   : 'c-out-r';
@@ -1842,7 +1854,8 @@
           setTimeout(() => {
             content.classList.remove('c-out', 'c-out-r', 'c-in', 'c-in-r');
             isAnimating = false;
-          }, 520);
+            clearTimeout(renderCarousel._watchdog);
+          }, 640); // cubre la animación IN más larga (mosaico: 0.48s + 0.12s delay = 0.6s) + margen
         });
 
       }, 300); // matches OUT duration
@@ -2030,57 +2043,49 @@
     });
 
     /* ─ Avatar flip ─
-       El avatar gira para mostrar la foto real (ya NO abre lightbox):
-       - Hover (desktop): gira mientras el cursor está encima (CSS :hover).
-       - Clic / tap / Enter: alterna el giro y lo fija.
-       - Auto-giro: cada cierto tiempo se voltea solo y vuelve, como pista
-         para quien no sabe que es interactivo. Se pausa al pasar el mouse. */
+       El avatar alterna entre ilustración y foto real:
+       - Clic / tap / Enter: alterna el giro de forma manual y detiene
+         la alternancia automática.
+       - Auto-alternancia: mientras el usuario no haya interactuado,
+         cambia solo cada 5 segundos entre ambas caras. */
     const avatarWrap = document.getElementById('avatar-wrap');
 
-    function toggleAvatarFlip() {
-      avatarWrap.classList.toggle('is-flipped');
-      pauseAvatarAutoFlip(); // si el usuario interactúa, no peleamos con el timer
+    let avatarFlipped      = false;
+    let avatarAutoInterval = null;
+    let avatarUserControl  = false;
+
+    function setAvatarFlipped(flipped) {
+      avatarFlipped = flipped;
+      avatarWrap.classList.toggle('is-flipped', flipped);
+    }
+
+    function stopAvatarAutoCycle() {
+      clearInterval(avatarAutoInterval);
+      avatarAutoInterval = null;
+    }
+
+    function startAvatarAutoCycle() {
+      stopAvatarAutoCycle();
+      avatarAutoInterval = setInterval(() => {
+        if (avatarUserControl) { stopAvatarAutoCycle(); return; }
+        setAvatarFlipped(!avatarFlipped);
+      }, 5000);
     }
 
     function handleAvatarClick(e) {
-      toggleAvatarFlip();
+      avatarUserControl = true;
+      stopAvatarAutoCycle();
+      setAvatarFlipped(!avatarFlipped);
     }
 
     function handleAvatarKey(e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        toggleAvatarFlip();
+        handleAvatarClick(e);
       }
     }
 
-    /* ── Auto-giro periódico ── */
-    let avatarAutoTimer   = null;
-    let avatarAutoStopped = false;
-
-    function scheduleAvatarAutoFlip() {
-      if (avatarAutoStopped) return;
-      avatarAutoTimer = setTimeout(() => {
-        // No hacer el guiño si el usuario tiene el mouse encima (hover ya lo muestra)
-        // ni si lo dejó fijado manualmente
-        if (!avatarWrap.matches(':hover') && !avatarWrap.classList.contains('is-flipped')) {
-          avatarWrap.classList.add('avatar-auto-flip');
-          setTimeout(() => avatarWrap.classList.remove('avatar-auto-flip'), 2200);
-        }
-        scheduleAvatarAutoFlip();
-      }, 6000); // repite cada ~6 s
-    }
-
-    function pauseAvatarAutoFlip() {
-      avatarAutoStopped = true;
-      clearTimeout(avatarAutoTimer);
-      avatarWrap.classList.remove('avatar-auto-flip');
-    }
-
-    // Al interactuar con el mouse, detenemos el guiño automático definitivamente
-    avatarWrap.addEventListener('mouseenter', pauseAvatarAutoFlip);
-
-    // Arranca el ciclo tras una primera espera corta
-    setTimeout(scheduleAvatarAutoFlip, 3000);
+    startAvatarAutoCycle();
 
     /* ─ Lightbox (se conserva para otras imágenes ampliables) ─ */
     function openLightbox() {
