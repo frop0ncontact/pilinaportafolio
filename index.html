@@ -66,6 +66,50 @@
       align-items: center;
       justify-content: center;
       padding: 48px 20px;
+      position: relative;
+    }
+
+    /* ─── Fondos dinámicos por categoría (cross-fade) ───
+       Capas fijas detrás del contenido. Cambian de opacidad al navegar
+       el carrusel para lograr una transición fluida entre fondos. */
+    .bg-layers {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .bg-layer {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+    .bg-layer.active {
+      opacity: 1;
+    }
+    /* Capa por defecto: el patrón de rayas rosa original del index */
+    #bg-default {
+      background-color: var(--pink-bg);
+      background-image:
+        repeating-linear-gradient(
+          to right,
+          transparent 0px,
+          transparent 60px,
+          rgba(255,255,255,0.55) 60px,
+          rgba(255,255,255,0.55) 120px,
+          transparent 120px,
+          transparent 160px,
+          var(--pink-stripe) 160px,
+          var(--pink-stripe) 163px,
+          transparent 163px,
+          transparent 220px,
+          rgba(255,255,255,0.55) 220px,
+          rgba(255,255,255,0.55) 280px
+        );
     }
 
     /* ─── Card ─── */
@@ -207,33 +251,40 @@
       position: relative;
     }
 
-    /* Avatar — fills the column */
+    /* Avatar — moneda circular con dos caras (ilustración / foto real) */
     .avatar-wrap {
       width: 100%;
       flex: 1;
       min-height: 320px;
-      border-radius: 0;
-      border: none;
-      background: transparent;
-      cursor: pointer;
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: center;
-      /* 3D flip context */
-      perspective: 1200px;
+      padding: 24px;
+      cursor: pointer;
+      background: transparent;
     }
 
-    /* Rotating inner element that holds both faces */
+    /* La "moneda": cuadrada (círculo), tamaño fluido acotado */
+    .avatar-coin {
+      position: relative;
+      width: min(72%, 260px);
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      /* 3D flip context on the coin itself */
+      perspective: 1000px;
+    }
+
     .avatar-flip {
       position: relative;
       width: 100%;
       height: 100%;
-      min-height: inherit;
+      border-radius: 50%;
       transform-style: preserve-3d;
       transition: transform 0.7s cubic-bezier(.4, .2, .2, 1);
+      will-change: transform;
     }
 
-    /* Flip on hover (desktop), when toggled (click/keyboard), or auto-hint */
+    /* Gira: hover (desktop), clic/teclado (is-flipped) o guiño automático */
     .avatar-wrap:hover .avatar-flip,
     .avatar-wrap.is-flipped .avatar-flip,
     .avatar-wrap.avatar-auto-flip .avatar-flip {
@@ -245,27 +296,27 @@
       inset: 0;
       width: 100%;
       height: 100%;
+      border-radius: 50%;
       overflow: hidden;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
+      border: 4px solid var(--card-bg);
+      box-shadow: 0 8px 28px rgba(180, 80, 130, 0.28);
+      background: var(--card-bg);
     }
 
     .avatar-face img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: top center;
+      object-position: center 22%;
       display: block;
     }
 
-    /* Back face (real photo) starts pre-rotated so it reads correctly */
+    /* Cara trasera (foto real) pre-rotada para que se lea correcta */
     .avatar-face--back {
       transform: rotateY(180deg);
     }
-
     .avatar-face--back img {
       object-position: center center;
     }
@@ -354,11 +405,14 @@
       }
 
       .avatar-wrap {
-        width: 150px;
-        height: 150px;
+        width: auto;
+        flex: 0 0 auto;
         min-height: 0;
+        padding: 12px;
       }
-      .avatar-wrap .avatar-flip { min-height: 150px; }
+      .avatar-coin {
+        width: 150px;
+      }
 
       .name {
         font-size: clamp(2.6rem, 12vw, 4rem);
@@ -1305,6 +1359,15 @@
 </head>
 <body>
 
+  <!-- ── FONDOS DINÁMICOS POR CATEGORÍA ── -->
+  <div class="bg-layers" id="bg-layers" aria-hidden="true">
+    <div class="bg-layer active" data-cat="default" id="bg-default"></div>
+    <div class="bg-layer" data-cat="figurines"  style="background-image:url('ElementosPaginaWeb/Fondo.png')"></div>
+    <div class="bg-layer" data-cat="fichas"      style="background-image:url('ElementosPaginaWeb/Fondo4.png')"></div>
+    <div class="bg-layer" data-cat="colecciones" style="background-image:url('ElementosPaginaWeb/Fondo3.png')"></div>
+    <div class="bg-layer" data-cat="generales"   style="background-image:url('ElementosPaginaWeb/Fondo2.png')"></div>
+  </div>
+
   <!-- ── PRELOADER ── -->
   <div class="preloader" id="preloader" aria-hidden="true">
     <img class="preloader__logo" src="ElementosPaginaWeb/Logo.png" alt="Zatana" />
@@ -1407,28 +1470,30 @@
     <!-- ── RIGHT ── -->
     <aside class="card__right" aria-label="Perfil y contacto">
 
-      <!-- Avatar ocupa todo el espacio superior. Hover / clic = gira a foto real -->
+      <!-- Avatar tipo moneda: hover / clic gira a la foto real -->
       <div class="avatar-wrap" id="avatar-wrap" role="button" tabindex="0"
         aria-label="Ilustración de Renata Trujillo. Pasa el cursor o haz clic para ver la foto real."
         title="Pasa el cursor o haz clic para ver la foto real"
         onclick="handleAvatarClick(event)"
         onkeydown="handleAvatarKey(event)">
-        <div class="avatar-flip">
-          <!-- Cara frontal: ilustración -->
-          <div class="avatar-face avatar-face--front">
-            <img
-              src="ElementosPaginaWeb/Headshot.png"
-              alt="Ilustración de Renata Trujillo"
-              loading="eager"
-            />
-          </div>
-          <!-- Cara trasera: foto real -->
-          <div class="avatar-face avatar-face--back">
-            <img
-              src="ElementosPaginaWeb/RealPhoto.webp"
-              alt="Foto real de Renata Trujillo"
-              loading="lazy"
-            />
+        <div class="avatar-coin">
+          <div class="avatar-flip">
+            <!-- Cara frontal: ilustración -->
+            <div class="avatar-face avatar-face--front">
+              <img
+                src="ElementosPaginaWeb/Headshot.png"
+                alt="Ilustración de Renata Trujillo"
+                loading="eager"
+              />
+            </div>
+            <!-- Cara trasera: foto real -->
+            <div class="avatar-face avatar-face--back">
+              <img
+                src="ElementosPaginaWeb/RealPhoto.webp"
+                alt="Foto real de Renata Trujillo"
+                loading="lazy"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -1581,9 +1646,18 @@
     /* ─ Carrusel ─ */
     const PLACEHOLDER = 'https://i.imgur.com/n2Jwp9F.png';
 
+    /* ── Fondo dinámico según categoría del carrusel ── */
+    function setBackgroundForCategory(cat) {
+      const layers = document.querySelectorAll('#bg-layers .bg-layer');
+      layers.forEach(l => {
+        l.classList.toggle('active', l.dataset.cat === cat);
+      });
+    }
+
     const slides = [
       {
         title: 'FIGURINES DE MODA',
+        cat:   'figurines',
         desc:  'Ilustraciones de moda a mano alzada: propuestas de vestuario, siluetas y colecciones. Cada figurín traduce una idea en imagen con identidad y técnica.',
         btn:   { text: 'LEER MÁS', href: 'https://zatana.cl/figurines_moda', soon: false },
         images: [
@@ -1593,6 +1667,7 @@
       },
       {
         title: 'FICHAS TÉCNICAS',
+        cat:   'fichas',
         desc:  'Documentación técnica de prendas: patrones, especificaciones de construcción y detalle de materiales. El puente entre el diseño y la producción.',
         btn:   { text: 'LEER MÁS', href: 'https://zatana.cl/fichas_tecnicas', soon: false },
         images: [
@@ -1602,6 +1677,7 @@
       },
       {
         title: 'COLECCIONES',
+        cat:   'colecciones',
         desc:  'Recopilación de las principales colecciones desarrolladas durante mi etapa de formación, junto a sus moodboards, procesos creativos y conceptualizaciones.',
         btn:   { text: 'LEER MÁS', href: 'https://zatana.cl/colecciones', soon: false },
         images: [
@@ -1611,6 +1687,7 @@
       },
       {
         title: 'TRABAJOS GENERALES',
+        cat:   'generales',
         desc:  'Trabajos, mockups y maquetas variadas de los diseños: prototipos, muestras y piezas que exploran materiales, volúmenes y acabados fuera de las categorías principales.',
         btn:   { text: 'LEER MÁS', href: 'https://zatana.cl/trabajos_generales', soon: false },
         images: [
@@ -1645,6 +1722,9 @@
       const content = document.getElementById('carousel-content');
       const outCls  = dir === 'l' ? 'c-out'   : 'c-out-r';
       const inCls   = dir === 'l' ? 'c-in'    : 'c-in-r';
+
+      // Cambiar el fondo de la página según la categoría del slide (cross-fade)
+      setBackgroundForCategory(s.cat);
 
       // Update diamond indicator — travels along the line
       document.querySelectorAll('.carousel-timeline__diamond').forEach(d => {
@@ -1723,6 +1803,8 @@
         const targetRect = target.getBoundingClientRect();
         indicator.style.left = (targetRect.left - trackRect.left + targetRect.width / 2) + 'px';
       }
+      // Fondo inicial acorde al primer slide del carrusel
+      if (slides[carouselCurrent]) setBackgroundForCategory(slides[carouselCurrent].cat);
     });
 
     /* ─ Mosaic Lightbox ─ */
