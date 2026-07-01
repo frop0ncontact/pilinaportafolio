@@ -1458,6 +1458,89 @@
       50%       { opacity: 0.7; transform: scale(0.97); }
     }
 
+    /* ─── PRINTS: stickers arrastrables (desktop) ───
+       Capa fija a la pantalla (no se mueve con el scroll ni con el
+       fondo). Cada imagen es un "sticker" que se puede arrastrar con
+       el mouse y queda donde el usuario lo suelte mientras dure la
+       sesión (se guarda en localStorage para que no "salte" de vuelta
+       al recargar). Se oculta en mobile: ver .sticker-strip más abajo. */
+    .sticker-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      pointer-events: none; /* el contenedor no bloquea clicks; cada sticker sí */
+    }
+
+    .sticker {
+      position: fixed;
+      width: clamp(64px, 8vw, 128px);
+      height: auto;
+      display: block;
+      pointer-events: auto;
+      cursor: grab;
+      touch-action: none;
+      filter: drop-shadow(0 6px 14px rgba(120, 40, 80, 0.22));
+      user-select: none;
+      -webkit-user-drag: none;
+      transition: transform 0.15s ease, filter 0.15s ease;
+      will-change: transform;
+    }
+
+    .sticker:hover {
+      transform: var(--sticker-rot, rotate(0deg)) scale(1.05);
+    }
+
+    .sticker.is-dragging {
+      cursor: grabbing;
+      z-index: 999;
+      filter: drop-shadow(0 12px 22px rgba(120, 40, 80, 0.32));
+      transition: none;
+    }
+
+    /* Rotaciones sutiles individuales, look "sticker" pegado a mano */
+    #print-1 { --sticker-rot: rotate(-8deg); }
+    #print-2 { --sticker-rot: rotate(6deg);  }
+    #print-3 { --sticker-rot: rotate(-4deg); }
+    #print-4 { --sticker-rot: rotate(9deg);  }
+    #print-5 { --sticker-rot: rotate(-11deg);}
+    #print-6 { --sticker-rot: rotate(5deg);  }
+    .sticker { transform: var(--sticker-rot, rotate(0deg)); }
+
+    /* ─── PRINTS: tira en mobile ───
+       En pantallas chicas arrastrar elementos fijos estorba el scroll,
+       así que en su lugar se muestran como una tira horizontal con
+       scroll propio, dentro del flujo normal de la página (no fijos). */
+    .sticker-strip {
+      display: none;
+    }
+
+    @media (max-width: 680px) {
+      .sticker-layer { display: none; }
+
+      .sticker-strip {
+        display: flex;
+        gap: 18px;
+        align-items: center;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 28px 24px 32px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .sticker-strip::-webkit-scrollbar { display: none; }
+
+      .sticker-strip img {
+        flex: 0 0 auto;
+        width: 108px;
+        height: auto;
+        filter: drop-shadow(0 6px 14px rgba(120, 40, 80, 0.22));
+        user-select: none;
+        -webkit-user-drag: none;
+      }
+      .sticker-strip img:nth-child(odd)  { transform: rotate(-6deg); }
+      .sticker-strip img:nth-child(even) { transform: rotate(5deg); }
+    }
+
     /* ─── Reduced motion ─── */
       * { transition: none !important; }
     }
@@ -1472,6 +1555,17 @@
     <div class="bg-layer" data-cat="colecciones" style="background-image:url('ElementosPaginaWeb/Fondo3.png')"></div>
     <div class="bg-layer" data-cat="generales"   style="background-image:url('ElementosPaginaWeb/Fondo2.png')"></div>
   </div>
+
+  <!-- ── PRINTS: stickers arrastrables, fijos a la pantalla (solo desktop, ver CSS) ── -->
+  <div class="sticker-layer" id="sticker-layer" aria-hidden="true">
+    <img id="print-1" class="sticker" src="Trabajos/Prints/Print1.webp" alt="" style="top:16%; left:4%;"  draggable="false" />
+    <img id="print-2" class="sticker" src="Trabajos/Prints/Print2.webp" alt="" style="top:66%; left:5%;"  draggable="false" />
+    <img id="print-3" class="sticker" src="Trabajos/Prints/Print3.webp" alt="" style="top:10%; left:89%;" draggable="false" />
+    <img id="print-4" class="sticker" src="Trabajos/Prints/Print4.webp" alt="" style="top:58%; left:90%;" draggable="false" />
+    <img id="print-5" class="sticker" src="Trabajos/Prints/Print5.webp" alt="" style="top:88%; left:12%;" draggable="false" />
+    <img id="print-6" class="sticker" src="Trabajos/Prints/Print6.webp" alt="" style="top:84%; left:82%;" draggable="false" />
+  </div>
+
 
   <!-- ── PRELOADER ── -->
   <div class="preloader" id="preloader" aria-hidden="true">
@@ -2133,6 +2227,93 @@
       if (e.key === 'Escape') closeLightbox();
     });
   </script>
+
+  <!-- ── PRINTS: tira horizontal, solo mobile (ver CSS) ── -->
+  <div class="sticker-strip" aria-hidden="true">
+    <img src="Trabajos/Prints/Print1.webp" alt="" draggable="false" />
+    <img src="Trabajos/Prints/Print2.webp" alt="" draggable="false" />
+    <img src="Trabajos/Prints/Print3.webp" alt="" draggable="false" />
+    <img src="Trabajos/Prints/Print4.webp" alt="" draggable="false" />
+    <img src="Trabajos/Prints/Print5.webp" alt="" draggable="false" />
+    <img src="Trabajos/Prints/Print6.webp" alt="" draggable="false" />
+  </div>
+
+  <script>
+    /* ─ Prints: arrastrar stickers fijos a la pantalla (desktop) ─
+       Cada sticker es position:fixed dentro de un contenedor fixed;
+       se mueve seteando left/top en px. La posición elegida por el
+       usuario se guarda en localStorage por sticker, así no "salta"
+       de vuelta a su lugar original al recargar la página. */
+    (function () {
+      var layer = document.getElementById('sticker-layer');
+      if (!layer) return;
+      var stickers = layer.querySelectorAll('.sticker');
+      var STORE_PREFIX = 'zatana-sticker-pos-';
+
+      stickers.forEach(function (el) {
+        // Restaurar posición guardada, si existe
+        try {
+          var saved = localStorage.getItem(STORE_PREFIX + el.id);
+          if (saved) {
+            var pos = JSON.parse(saved);
+            el.style.left = pos.left + 'px';
+            el.style.top  = pos.top + 'px';
+          }
+        } catch (e) { /* localStorage no disponible: se ignora, no rompe nada */ }
+
+        var dragging  = false;
+        var offsetX   = 0;
+        var offsetY   = 0;
+
+        el.addEventListener('pointerdown', function (e) {
+          dragging = true;
+          el.classList.add('is-dragging');
+          el.setPointerCapture(e.pointerId);
+
+          var rect = el.getBoundingClientRect();
+          // Fijar la posición actual en px (por si venía puesta en %)
+          el.style.left = rect.left + 'px';
+          el.style.top  = rect.top + 'px';
+
+          offsetX = e.clientX - rect.left;
+          offsetY = e.clientY - rect.top;
+        });
+
+        el.addEventListener('pointermove', function (e) {
+          if (!dragging) return;
+          var w = el.offsetWidth;
+          var h = el.offsetHeight;
+          // Deja siempre una porción visible del sticker dentro del viewport
+          var minVisible = 24;
+          var newLeft = e.clientX - offsetX;
+          var newTop  = e.clientY - offsetY;
+          newLeft = Math.max(minVisible - w, Math.min(newLeft, window.innerWidth  - minVisible));
+          newTop  = Math.max(minVisible - h, Math.min(newTop,  window.innerHeight - minVisible));
+          el.style.left = newLeft + 'px';
+          el.style.top  = newTop  + 'px';
+        });
+
+        function endDrag(e) {
+          if (!dragging) return;
+          dragging = false;
+          el.classList.remove('is-dragging');
+          try {
+            el.releasePointerCapture(e.pointerId);
+          } catch (err) {}
+          try {
+            localStorage.setItem(STORE_PREFIX + el.id, JSON.stringify({
+              left: parseFloat(el.style.left),
+              top:  parseFloat(el.style.top)
+            }));
+          } catch (e) { /* si falla el guardado, el sticker igual quedó movido en pantalla */ }
+        }
+
+        el.addEventListener('pointerup', endDrag);
+        el.addEventListener('pointercancel', endDrag);
+      });
+    })();
+  </script>
+
   <!-- ── FOOTER ── -->
   <footer class="site-footer">
     <div class="footer-inner">
