@@ -1736,73 +1736,8 @@
     }
     .sticker-wrap.is-selected .sticker-frame { opacity: 1; }
 
-    /* Handles de las 4 esquinas: redimensionan proporcionalmente
-       arrastrando desde el punto opuesto (igual que en Canva) */
-    .sticker-handle {
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      background: #fff;
-      border: 2px solid var(--pink-dark, #b23a6b);
-      border-radius: 4px;
-      box-shadow: 0 1px 4px rgba(120, 40, 80, 0.35);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.12s ease;
-      touch-action: none;
-    }
-    .sticker-wrap.is-selected .sticker-handle {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .sticker-handle--nw { top: -7px;    left: -7px;   cursor: nwse-resize; }
-    .sticker-handle--ne { top: -7px;    right: -7px;  cursor: nesw-resize; }
-    .sticker-handle--sw { bottom: -7px; left: -7px;   cursor: nesw-resize; }
-    .sticker-handle--se { bottom: -7px; right: -7px;  cursor: nwse-resize; }
-
-    /* Handle de rotación: círculo arriba del marco, unido por una
-       línea fina, igual que Canva/Figma */
-    .sticker-rotate-stem {
-      position: absolute;
-      top: -32px;
-      left: 50%;
-      width: 1.5px;
-      height: 24px;
-      background: rgba(178, 58, 107, 0.9);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.12s ease;
-    }
-    .sticker-rotate-handle {
-      position: absolute;
-      top: -44px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #fff;
-      border: 2px solid var(--pink-dark, #b23a6b);
-      box-shadow: 0 1px 4px rgba(120, 40, 80, 0.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: grab;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.12s ease;
-      touch-action: none;
-    }
-    .sticker-rotate-handle svg { width: 12px; height: 12px; color: var(--pink-dark, #b23a6b); }
-    .sticker-wrap.is-selected .sticker-rotate-stem,
-    .sticker-wrap.is-selected .sticker-rotate-handle {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .sticker-rotate-handle:active { cursor: grabbing; }
-
     /* Mini-toolbar lateral: flip H/V + borrar, junto al marco (no
-       encima, para no chocar con la mano al reescalar) */
+       encima, para no tapar el sticker) */
     .sticker-toolbar {
       position: absolute;
       top: 0;
@@ -2604,7 +2539,6 @@
       var CLOSED_KEY     = 'zatana-print-stack-closed';
       var HINT_KEY       = 'zatana-print-stack-hint-seen';
       var DRAG_THRESHOLD = 8;  // px: menos que esto se interpreta como "tap"
-      var MIN_SCALE = 0.4, MAX_SCALE = 2.5;
 
       var stack       = document.getElementById('print-stack');
       var stackToggle = document.getElementById('print-stack-toggle');
@@ -2711,32 +2645,16 @@
 
       deselectCatcher.addEventListener('pointerdown', deselectAll);
 
+
+
       function applyTransform(wrap, data) {
         var img = wrap.querySelector('.placed-sticker');
         var flipX = data.flipX ? -1 : 1;
         var flipY = data.flipY ? -1 : 1;
 
-        // Capturamos el ancho "base" (el que definiría el CSS clamp()
-        // responsivo) una sola vez, antes de tocar el width inline,
-        // para poder escalar a partir de ese valor y no acumular error.
-        if (!data._baseWidth) {
-          var prevWidth = img.style.width;
-          img.style.width = '';
-          data._baseWidth = img.getBoundingClientRect().width || 130;
-          img.style.width = prevWidth;
-        }
-
-        // El tamaño se aplica cambiando el width real (layout), no con
-        // transform:scale — así el .sticker-wrap (que no tiene tamaño
-        // propio, hereda el del <img>) crece junto con el sticker y la
-        // hitbox de arrastre + la toolbar quedan siempre bien alineadas.
-        img.style.width = (data._baseWidth * data.scale) + 'px';
-
-        // Rotar y espejar sí pueden ir en transform: no cambian el
-        // tamaño ocupado en el layout (solo lo giran/reflejan).
-        img.style.transform =
-          'rotate(' + (data.rot || 0) + 'deg) ' +
-          'scaleX(' + flipX + ') scaleY(' + flipY + ')';
+        // Espejar sí puede ir en transform: no cambia el tamaño
+        // ocupado en el layout (solo lo refleja).
+        img.style.transform = 'scaleX(' + flipX + ') scaleY(' + flipY + ')';
       }
 
       function removePlaced(data, wrap) {
@@ -2749,8 +2667,6 @@
 
       function svgIcon(name) {
         switch (name) {
-          case 'rotate':
-            return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.2-6.9"/><path d="M21 3v6h-6"/></svg>';
           case 'flipH':
             return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M17 8l4 4-4 4"/><path d="M7 8l-4 4 4 4"/></svg>';
           case 'flipV':
@@ -2775,7 +2691,6 @@
 
       function createPlacedEl(data) {
         // Valores por defecto para stickers guardados antes de esta versión
-        if (data.scale === undefined) data.scale = 1;
         if (data.flipX === undefined) data.flipX = false;
         if (data.flipY === undefined) data.flipY = false;
 
@@ -2830,95 +2745,6 @@
         toolbar.appendChild(btnFlipV);
         toolbar.appendChild(btnDelete);
         wrap.appendChild(toolbar);
-
-        /* ── Handles de esquina: redimensionan proporcionalmente,
-           ancladas al punto opuesto de la esquina arrastrada, igual
-           que en Canva/Figma. Como el sticker gira, el arrastre se
-           proyecta sobre la diagonal ya rotada del marco, así el
-           tamaño responde de forma natural sin importar el ángulo. ── */
-        var corners = ['nw', 'ne', 'sw', 'se'];
-        corners.forEach(function (corner) {
-          var handle = document.createElement('div');
-          handle.className = 'sticker-handle sticker-handle--' + corner;
-          handle.setAttribute('aria-label', 'Redimensionar sticker');
-          wrap.appendChild(handle);
-
-          handle.addEventListener('pointerdown', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            handle.setPointerCapture(e.pointerId);
-
-            var startScale = data.scale;
-            var rect = el.getBoundingClientRect();
-            var cx = rect.left + rect.width / 2;
-            var cy = rect.top + rect.height / 2;
-            var startDist = Math.hypot(e.clientX - cx, e.clientY - cy) || 1;
-
-            function onMove(ev) {
-              var dist = Math.hypot(ev.clientX - cx, ev.clientY - cy);
-              var newScale = startScale * (dist / startDist);
-              newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
-              data.scale = newScale;
-              applyTransform(wrap, data);
-            }
-            function onUp(ev) {
-              try { handle.releasePointerCapture(ev.pointerId); } catch (err) {}
-              handle.removeEventListener('pointermove', onMove);
-              handle.removeEventListener('pointerup', onUp);
-              handle.removeEventListener('pointercancel', onUp);
-              savePlaced();
-            }
-            handle.addEventListener('pointermove', onMove);
-            handle.addEventListener('pointerup', onUp);
-            handle.addEventListener('pointercancel', onUp);
-          });
-        });
-
-        /* ── Handle de rotación: círculo arriba del marco, se arrastra
-           en círculo alrededor del centro del sticker ── */
-        var rotateStem = document.createElement('div');
-        rotateStem.className = 'sticker-rotate-stem';
-        wrap.appendChild(rotateStem);
-
-        var rotateHandle = document.createElement('div');
-        rotateHandle.className = 'sticker-rotate-handle';
-        rotateHandle.setAttribute('aria-label', 'Rotar sticker');
-        rotateHandle.innerHTML = svgIcon('rotate');
-        wrap.appendChild(rotateHandle);
-
-        rotateHandle.addEventListener('pointerdown', function (e) {
-          e.stopPropagation();
-          e.preventDefault();
-          rotateHandle.setPointerCapture(e.pointerId);
-
-          var rect = el.getBoundingClientRect();
-          var cx = rect.left + rect.width / 2;
-          var cy = rect.top + rect.height / 2;
-          var startAngle = Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI;
-          var startRot = data.rot || 0;
-
-          function onMove(ev) {
-            var angle = Math.atan2(ev.clientY - cy, ev.clientX - cx) * 180 / Math.PI;
-            var delta = angle - startAngle;
-            var newRot = Math.round(startRot + delta);
-            // Se ajusta a pasos de 15° cuando queda cerca (como Canva),
-            // así es fácil dejarlo derecho o en diagonales exactas.
-            var snapped = Math.round(newRot / 15) * 15;
-            if (Math.abs(newRot - snapped) < 4) newRot = snapped;
-            data.rot = ((newRot % 360) + 360) % 360;
-            applyTransform(wrap, data);
-          }
-          function onUp(ev) {
-            try { rotateHandle.releasePointerCapture(ev.pointerId); } catch (err) {}
-            rotateHandle.removeEventListener('pointermove', onMove);
-            rotateHandle.removeEventListener('pointerup', onUp);
-            rotateHandle.removeEventListener('pointercancel', onUp);
-            savePlaced();
-          }
-          rotateHandle.addEventListener('pointermove', onMove);
-          rotateHandle.addEventListener('pointerup', onUp);
-          rotateHandle.addEventListener('pointercancel', onUp);
-        });
 
         /* ── Selección + arrastre para reposicionar ── */
         var dragging = false, moved = false;
@@ -3056,8 +2882,6 @@
               file:  FILES[idx],
               left:  ev.clientX - (w / 2) + window.scrollX,
               top:   ev.clientY - (h / 2) + window.scrollY,
-              rot:   Math.round((Math.random() * 24) - 12),
-              scale: 1,
               flipX: false,
               flipY: false
             };
