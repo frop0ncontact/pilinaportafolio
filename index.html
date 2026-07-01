@@ -1463,7 +1463,7 @@
        fondo). Cada imagen es un "sticker" que se puede arrastrar con
        el mouse y queda donde el usuario lo suelte mientras dure la
        sesión (se guarda en localStorage para que no "salte" de vuelta
-       al recargar). Se oculta en mobile: ver .sticker-strip más abajo. */
+       al recargar). En mobile no se usa esta capa: ver .print-stack más abajo. */
     .sticker-layer {
       position: fixed;
       inset: 0;
@@ -1473,7 +1473,7 @@
 
     .sticker {
       position: fixed;
-      width: clamp(64px, 8vw, 128px);
+      width: clamp(110px, 12vw, 210px);
       height: auto;
       display: block;
       pointer-events: auto;
@@ -1506,39 +1506,65 @@
     #print-6 { --sticker-rot: rotate(5deg);  }
     .sticker { transform: var(--sticker-rot, rotate(0deg)); }
 
-    /* ─── PRINTS: tira en mobile ───
-       En pantallas chicas arrastrar elementos fijos estorba el scroll,
-       así que en su lugar se muestran como una tira horizontal con
-       scroll propio, dentro del flujo normal de la página (no fijos). */
-    .sticker-strip {
+    /* ─── PRINTS: stack arrastrable en mobile ───
+       En pantallas chicas, en vez de una tira o de 6 stickers sueltos,
+       se muestra 1 solo elemento (como un mazo de fotos apiladas) fijo
+       a la pantalla y arrastrable con el dedo. Un tap corto (sin
+       arrastre) rota a la siguiente imagen del stack. */
+    .print-stack {
       display: none;
     }
 
     @media (max-width: 680px) {
       .sticker-layer { display: none; }
 
-      .sticker-strip {
-        display: flex;
-        gap: 18px;
-        align-items: center;
-        overflow-x: auto;
-        overflow-y: hidden;
-        padding: 28px 24px 32px;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-      }
-      .sticker-strip::-webkit-scrollbar { display: none; }
-
-      .sticker-strip img {
-        flex: 0 0 auto;
-        width: 108px;
-        height: auto;
-        filter: drop-shadow(0 6px 14px rgba(120, 40, 80, 0.22));
+      .print-stack {
+        display: block;
+        position: fixed;
+        z-index: 40;
+        width: 132px;
+        touch-action: none;
+        cursor: grab;
         user-select: none;
-        -webkit-user-drag: none;
       }
-      .sticker-strip img:nth-child(odd)  { transform: rotate(-6deg); }
-      .sticker-strip img:nth-child(even) { transform: rotate(5deg); }
+      .print-stack.is-dragging { cursor: grabbing; z-index: 999; }
+
+      .print-stack__layer {
+        position: absolute;
+        inset: 0;
+        border-radius: 14px;
+        background: var(--card-bg);
+        box-shadow: 0 6px 16px rgba(120, 40, 80, 0.2);
+      }
+      .print-stack__layer:nth-child(1) { transform: rotate(-9deg) translate(3px, 4px); }
+      .print-stack__layer:nth-child(2) { transform: rotate(7deg)  translate(-3px, 5px); }
+
+      .print-stack__img {
+        position: relative;
+        z-index: 2;
+        display: block;
+        width: 100%;
+        border-radius: 14px;
+        filter: drop-shadow(0 8px 16px rgba(120, 40, 80, 0.26));
+        pointer-events: none; /* el drag/tap lo maneja el contenedor */
+      }
+
+      .print-stack__badge {
+        position: absolute;
+        bottom: -8px;
+        right: -8px;
+        z-index: 3;
+        background: var(--pink-dark);
+        color: #fff;
+        font-family: var(--font-body);
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        padding: 3px 7px;
+        border-radius: 999px;
+        box-shadow: 0 2px 6px rgba(120, 40, 80, 0.3);
+        pointer-events: none;
+      }
     }
 
     /* ─── Reduced motion ─── */
@@ -2228,14 +2254,12 @@
     });
   </script>
 
-  <!-- ── PRINTS: tira horizontal, solo mobile (ver CSS) ── -->
-  <div class="sticker-strip" aria-hidden="true">
-    <img src="Trabajos/Prints/Print1.webp" alt="" draggable="false" />
-    <img src="Trabajos/Prints/Print2.webp" alt="" draggable="false" />
-    <img src="Trabajos/Prints/Print3.webp" alt="" draggable="false" />
-    <img src="Trabajos/Prints/Print4.webp" alt="" draggable="false" />
-    <img src="Trabajos/Prints/Print5.webp" alt="" draggable="false" />
-    <img src="Trabajos/Prints/Print6.webp" alt="" draggable="false" />
+  <!-- ── PRINTS: stack arrastrable, solo mobile (ver CSS) ── -->
+  <div class="print-stack" id="print-stack" aria-hidden="true" style="bottom: 110px; right: 20px;">
+    <div class="print-stack__layer"></div>
+    <div class="print-stack__layer"></div>
+    <img class="print-stack__img" id="print-stack-img" src="Trabajos/Prints/Print1.webp" alt="" draggable="false" />
+    <span class="print-stack__badge" id="print-stack-badge">1/6</span>
   </div>
 
   <script>
@@ -2311,6 +2335,118 @@
         el.addEventListener('pointerup', endDrag);
         el.addEventListener('pointercancel', endDrag);
       });
+    })();
+
+    /* ─ Prints: stack arrastrable en mobile, tap = siguiente imagen ─
+       Mismo mecanismo de arrastre que los stickers de desktop, pero
+       en un solo elemento. Si el dedo se movió poco y soltó rápido,
+       se interpreta como "tap" y rota a la siguiente foto del stack;
+       si hubo arrastre real, solo se mueve de lugar. */
+    (function () {
+      var stack = document.getElementById('print-stack');
+      if (!stack) return;
+      var img   = document.getElementById('print-stack-img');
+      var badge = document.getElementById('print-stack-badge');
+      var files = [
+        'Trabajos/Prints/Print1.webp',
+        'Trabajos/Prints/Print2.webp',
+        'Trabajos/Prints/Print3.webp',
+        'Trabajos/Prints/Print4.webp',
+        'Trabajos/Prints/Print5.webp',
+        'Trabajos/Prints/Print6.webp'
+      ];
+      var POS_KEY = 'zatana-print-stack-pos';
+      var IDX_KEY = 'zatana-print-stack-idx';
+      var idx = 0;
+
+      try {
+        var savedIdx = localStorage.getItem(IDX_KEY);
+        if (savedIdx !== null) idx = (parseInt(savedIdx, 10) || 0) % files.length;
+      } catch (e) {}
+
+      try {
+        var savedPos = localStorage.getItem(POS_KEY);
+        if (savedPos) {
+          var pos = JSON.parse(savedPos);
+          stack.style.left   = pos.left + 'px';
+          stack.style.top    = pos.top  + 'px';
+          stack.style.right  = 'auto';
+          stack.style.bottom = 'auto';
+        }
+      } catch (e) {}
+
+      function render() {
+        img.src = files[idx];
+        badge.textContent = (idx + 1) + '/' + files.length;
+      }
+      render();
+
+      var dragging   = false;
+      var startX = 0, startY = 0, offsetX = 0, offsetY = 0;
+      var moved      = false;
+      var DRAG_THRESHOLD = 8; // px: menos que esto se considera "tap"
+
+      stack.addEventListener('pointerdown', function (e) {
+        dragging = true;
+        moved    = false;
+        stack.classList.add('is-dragging');
+        stack.setPointerCapture(e.pointerId);
+
+        var rect = stack.getBoundingClientRect();
+        stack.style.left   = rect.left + 'px';
+        stack.style.top    = rect.top  + 'px';
+        stack.style.right  = 'auto';
+        stack.style.bottom = 'auto';
+
+        startX = e.clientX;
+        startY = e.clientY;
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+      });
+
+      stack.addEventListener('pointermove', function (e) {
+        if (!dragging) return;
+        var dx = e.clientX - startX;
+        var dy = e.clientY - startY;
+        if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
+          moved = true;
+        }
+        if (!moved) return;
+
+        var w = stack.offsetWidth;
+        var h = stack.offsetHeight;
+        var minVisible = 24;
+        var newLeft = e.clientX - offsetX;
+        var newTop  = e.clientY - offsetY;
+        newLeft = Math.max(minVisible - w, Math.min(newLeft, window.innerWidth  - minVisible));
+        newTop  = Math.max(minVisible - h, Math.min(newTop,  window.innerHeight - minVisible));
+        stack.style.left = newLeft + 'px';
+        stack.style.top  = newTop  + 'px';
+      });
+
+      function endDrag(e) {
+        if (!dragging) return;
+        dragging = false;
+        stack.classList.remove('is-dragging');
+        try { stack.releasePointerCapture(e.pointerId); } catch (err) {}
+
+        if (moved) {
+          try {
+            localStorage.setItem(POS_KEY, JSON.stringify({
+              left: parseFloat(stack.style.left),
+              top:  parseFloat(stack.style.top)
+            }));
+          } catch (err) {}
+        } else {
+          // Tap: no hubo arrastre real → siguiente imagen del stack
+          idx = (idx + 1) % files.length;
+          render();
+          try { localStorage.setItem(IDX_KEY, String(idx)); } catch (err) {}
+        }
+      }
+
+      stack.addEventListener('pointerup', endDrag);
+      stack.addEventListener('pointercancel', endDrag);
     })();
   </script>
 
