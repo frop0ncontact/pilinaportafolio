@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Renata Trujillo — Portafolio</title>
+  <!-- Favicon (logo Zatana) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="ElementosPaginaWeb/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="ElementosPaginaWeb/favicon-16.png" />
+  <link rel="icon" href="ElementosPaginaWeb/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="ElementosPaginaWeb/favicon-180.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -211,22 +216,58 @@
       border-radius: 0;
       border: none;
       background: transparent;
-      overflow: hidden;
       cursor: pointer;
-      transition: transform 0.3s ease;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      /* 3D flip context */
+      perspective: 1200px;
+    }
+
+    /* Rotating inner element that holds both faces */
+    .avatar-flip {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: inherit;
+      transform-style: preserve-3d;
+      transition: transform 0.7s cubic-bezier(.4, .2, .2, 1);
+    }
+
+    /* Flip on hover (desktop) and when toggled (touch / keyboard) */
+    .avatar-wrap:hover .avatar-flip,
+    .avatar-wrap.is-flipped .avatar-flip {
+      transform: rotateY(180deg);
+    }
+
+    .avatar-face {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
       display: flex;
       align-items: flex-end;
       justify-content: center;
     }
 
-    .avatar-wrap:hover { transform: scale(1.03); }
-
-    .avatar-wrap img {
+    .avatar-face img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       object-position: top center;
       display: block;
+    }
+
+    /* Back face (real photo) starts pre-rotated so it reads correctly */
+    .avatar-face--back {
+      transform: rotateY(180deg);
+    }
+
+    .avatar-face--back img {
+      object-position: center center;
     }
 
     /* Info strip at bottom of right column */
@@ -315,7 +356,9 @@
       .avatar-wrap {
         width: 150px;
         height: 150px;
+        min-height: 0;
       }
+      .avatar-wrap .avatar-flip { min-height: 150px; }
 
       .name {
         font-size: clamp(2.6rem, 12vw, 4rem);
@@ -1364,15 +1407,29 @@
     <!-- ── RIGHT ── -->
     <aside class="card__right" aria-label="Perfil y contacto">
 
-      <!-- Avatar ocupa todo el espacio superior -->
-      <div class="avatar-wrap" onclick="openLightbox()" role="button" tabindex="0"
-        aria-label="Ver ilustración en pantalla completa"
-        onkeydown="if(event.key==='Enter')openLightbox()">
-        <img
-          src="ElementosPaginaWeb/Headshot.png"
-          alt="Ilustración de Renata Trujillo"
-          loading="eager"
-        />
+      <!-- Avatar ocupa todo el espacio superior. Hover = flip a foto real -->
+      <div class="avatar-wrap" id="avatar-wrap" role="button" tabindex="0"
+        aria-label="Ilustración de Renata Trujillo. Pasa el cursor para ver la foto real."
+        onclick="handleAvatarClick(event)"
+        onkeydown="handleAvatarKey(event)">
+        <div class="avatar-flip">
+          <!-- Cara frontal: ilustración -->
+          <div class="avatar-face avatar-face--front">
+            <img
+              src="ElementosPaginaWeb/Headshot.png"
+              alt="Ilustración de Renata Trujillo"
+              loading="eager"
+            />
+          </div>
+          <!-- Cara trasera: foto real -->
+          <div class="avatar-face avatar-face--back">
+            <img
+              src="ElementosPaginaWeb/RealPhoto.webp"
+              alt="Foto real de Renata Trujillo"
+              loading="lazy"
+            />
+          </div>
+        </div>
       </div>
 
       <!-- Info strip debajo del avatar -->
@@ -1575,10 +1632,9 @@
         title: 'COLECCIONES',
         desc:  'Recopilación de las principales colecciones desarrolladas durante mi etapa de formación, junto a sus moodboards, procesos creativos y conceptualizaciones.',
         btn:   { text: 'LEER MÁS', href: 'https://zatana.cl/colecciones', soon: false },
-        images: [],
-        pdfCovers: [
-          'Trabajos/Colecciones/Proyecto de título_compressed.pdf',
-          'Trabajos/Colecciones/Afterlife_compressed.pdf',
+        images: [
+          'Trabajos/Colecciones/Col1.webp',
+          'Trabajos/Colecciones/Col2.webp',
         ]
       }
     ];
@@ -1856,6 +1912,37 @@
     });
 
     /* ─ Lightbox ─ */
+    /* ─ Avatar flip + lightbox ─
+       Desktop: el flip ocurre por :hover (CSS puro), clic abre el lightbox.
+       Táctil: primer toque voltea a la foto real, segundo toque abre el lightbox. */
+    const avatarIsTouch = window.matchMedia('(hover: none)').matches;
+
+    function handleAvatarClick(e) {
+      const wrap = document.getElementById('avatar-wrap');
+      if (avatarIsTouch) {
+        if (!wrap.classList.contains('is-flipped')) {
+          wrap.classList.add('is-flipped');
+          return; // primer toque: solo voltea
+        }
+        // segundo toque sobre la foto real: abrir lightbox
+      }
+      openLightbox();
+    }
+
+    function handleAvatarKey(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openLightbox();
+      }
+    }
+
+    // En táctil, tocar fuera del avatar lo regresa a la ilustración
+    document.addEventListener('click', e => {
+      if (!avatarIsTouch) return;
+      const wrap = document.getElementById('avatar-wrap');
+      if (wrap && !wrap.contains(e.target)) wrap.classList.remove('is-flipped');
+    });
+
     function openLightbox() {
       document.getElementById('lightbox').classList.add('open');
       document.body.style.overflow = 'hidden';
