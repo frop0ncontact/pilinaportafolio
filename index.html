@@ -1458,113 +1458,98 @@
       50%       { opacity: 0.7; transform: scale(0.97); }
     }
 
-    /* ─── PRINTS: stickers arrastrables (desktop) ───
-       Capa fija a la pantalla (no se mueve con el scroll ni con el
-       fondo). Cada imagen es un "sticker" que se puede arrastrar con
-       el mouse y queda donde el usuario lo suelte mientras dure la
-       sesión (se guarda en localStorage para que no "salte" de vuelta
-       al recargar). En mobile no se usa esta capa: ver .print-stack más abajo. */
-    .sticker-layer {
+    /* ─── PRINTS: libreta de stickers (dispensador) ───
+       Un solo elemento fijo a la pantalla, igual en desktop y mobile,
+       que actúa como una libreta de stickers: siempre a mano mientras
+       se hace scroll, con un "mazo" visual (dos capas asomando detrás)
+       y un contador (ej. "1/6"). Un tap corto pasa a la siguiente
+       imagen. Arrastrar y soltar sobre la página "pega" una copia del
+       print actual en ese punto exacto del documento — ver
+       .placed-sticker más abajo, que sí queda pegado a la página
+       (se mueve con el scroll), no a la pantalla. Copias ilimitadas:
+       la libreta nunca se vacía. */
+    .print-stack {
       position: fixed;
+      right: 20px;
+      bottom: 24px;
+      z-index: 60;
+      width: clamp(108px, 9vw, 168px);
+      touch-action: none;
+      cursor: grab;
+      user-select: none;
+    }
+    .print-stack.is-dragging { cursor: grabbing; }
+
+    .print-stack__layer {
+      position: absolute;
       inset: 0;
-      z-index: 40;
-      pointer-events: none; /* el contenedor no bloquea clicks; cada sticker sí */
+      border-radius: 14px;
+      background: var(--card-bg);
+      box-shadow: 0 6px 16px rgba(120, 40, 80, 0.2);
+    }
+    .print-stack__layer:nth-child(1) { transform: rotate(-9deg) translate(3px, 4px); }
+    .print-stack__layer:nth-child(2) { transform: rotate(7deg)  translate(-3px, 5px); }
+
+    .print-stack__img {
+      position: relative;
+      z-index: 2;
+      display: block;
+      width: 100%;
+      border-radius: 14px;
+      filter: drop-shadow(0 8px 16px rgba(120, 40, 80, 0.26));
+      pointer-events: none; /* el drag/tap lo maneja el contenedor */
+      transition: transform 0.15s ease;
+    }
+    .print-stack.is-dragging .print-stack__img { transform: scale(0.94); }
+
+    .print-stack__badge {
+      position: absolute;
+      bottom: -8px;
+      right: -8px;
+      z-index: 3;
+      background: var(--pink-dark);
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      padding: 3px 7px;
+      border-radius: 999px;
+      box-shadow: 0 2px 6px rgba(120, 40, 80, 0.3);
+      pointer-events: none;
     }
 
-    .sticker {
+    /* Ghost: clon del print que sigue al mouse/dedo mientras se arrastra
+       fuera de la libreta. No pertenece a la página todavía. */
+    .print-drag-ghost {
       position: fixed;
-      width: clamp(110px, 12vw, 210px);
-      height: auto;
+      z-index: 9998;
+      width: clamp(108px, 9vw, 168px);
+      pointer-events: none;
+      border-radius: 14px;
+      filter: drop-shadow(0 10px 20px rgba(120, 40, 80, 0.3));
+      opacity: 0.95;
+      will-change: transform;
+    }
+
+    /* Sticker ya pegado a la página: absolute (no fixed), así se
+       mueve con el scroll como cualquier otro elemento del sitio. */
+    .placed-sticker {
+      position: absolute;
+      z-index: 45;
+      width: clamp(90px, 9vw, 170px);
       display: block;
-      pointer-events: auto;
       cursor: grab;
       touch-action: none;
       filter: drop-shadow(0 6px 14px rgba(120, 40, 80, 0.22));
       user-select: none;
       -webkit-user-drag: none;
-      transition: transform 0.15s ease, filter 0.15s ease;
-      will-change: transform;
+      transition: filter 0.15s ease;
     }
-
-    .sticker:hover {
-      transform: var(--sticker-rot, rotate(0deg)) scale(1.05);
-    }
-
-    .sticker.is-dragging {
+    .placed-sticker.is-dragging {
       cursor: grabbing;
       z-index: 999;
       filter: drop-shadow(0 12px 22px rgba(120, 40, 80, 0.32));
-      transition: none;
-    }
-
-    /* Rotaciones sutiles individuales, look "sticker" pegado a mano */
-    #print-1 { --sticker-rot: rotate(-8deg); }
-    #print-2 { --sticker-rot: rotate(6deg);  }
-    #print-3 { --sticker-rot: rotate(-4deg); }
-    #print-4 { --sticker-rot: rotate(9deg);  }
-    #print-5 { --sticker-rot: rotate(-11deg);}
-    #print-6 { --sticker-rot: rotate(5deg);  }
-    .sticker { transform: var(--sticker-rot, rotate(0deg)); }
-
-    /* ─── PRINTS: stack arrastrable en mobile ───
-       En pantallas chicas, en vez de una tira o de 6 stickers sueltos,
-       se muestra 1 solo elemento (como un mazo de fotos apiladas) fijo
-       a la pantalla y arrastrable con el dedo. Un tap corto (sin
-       arrastre) rota a la siguiente imagen del stack. */
-    .print-stack {
-      display: none;
-    }
-
-    @media (max-width: 680px) {
-      .sticker-layer { display: none; }
-
-      .print-stack {
-        display: block;
-        position: fixed;
-        z-index: 40;
-        width: 132px;
-        touch-action: none;
-        cursor: grab;
-        user-select: none;
-      }
-      .print-stack.is-dragging { cursor: grabbing; z-index: 999; }
-
-      .print-stack__layer {
-        position: absolute;
-        inset: 0;
-        border-radius: 14px;
-        background: var(--card-bg);
-        box-shadow: 0 6px 16px rgba(120, 40, 80, 0.2);
-      }
-      .print-stack__layer:nth-child(1) { transform: rotate(-9deg) translate(3px, 4px); }
-      .print-stack__layer:nth-child(2) { transform: rotate(7deg)  translate(-3px, 5px); }
-
-      .print-stack__img {
-        position: relative;
-        z-index: 2;
-        display: block;
-        width: 100%;
-        border-radius: 14px;
-        filter: drop-shadow(0 8px 16px rgba(120, 40, 80, 0.26));
-        pointer-events: none; /* el drag/tap lo maneja el contenedor */
-      }
-
-      .print-stack__badge {
-        position: absolute;
-        bottom: -8px;
-        right: -8px;
-        z-index: 3;
-        background: var(--pink-dark);
-        color: #fff;
-        font-family: var(--font-body);
-        font-size: 0.68rem;
-        font-weight: 600;
-        letter-spacing: 0.03em;
-        padding: 3px 7px;
-        border-radius: 999px;
-        box-shadow: 0 2px 6px rgba(120, 40, 80, 0.3);
-        pointer-events: none;
-      }
     }
 
     /* ─── Reduced motion ─── */
@@ -1582,15 +1567,7 @@
     <div class="bg-layer" data-cat="generales"   style="background-image:url('ElementosPaginaWeb/Fondo2.png')"></div>
   </div>
 
-  <!-- ── PRINTS: stickers arrastrables, fijos a la pantalla (solo desktop, ver CSS) ── -->
-  <div class="sticker-layer" id="sticker-layer" aria-hidden="true">
-    <img id="print-1" class="sticker" src="Trabajos/Prints/Print1.webp" alt="" style="top:16%; left:4%;"  draggable="false" />
-    <img id="print-2" class="sticker" src="Trabajos/Prints/Print2.webp" alt="" style="top:66%; left:5%;"  draggable="false" />
-    <img id="print-3" class="sticker" src="Trabajos/Prints/Print3.webp" alt="" style="top:10%; left:89%;" draggable="false" />
-    <img id="print-4" class="sticker" src="Trabajos/Prints/Print4.webp" alt="" style="top:58%; left:90%;" draggable="false" />
-    <img id="print-5" class="sticker" src="Trabajos/Prints/Print5.webp" alt="" style="top:88%; left:12%;" draggable="false" />
-    <img id="print-6" class="sticker" src="Trabajos/Prints/Print6.webp" alt="" style="top:84%; left:82%;" draggable="false" />
-  </div>
+  <!-- ── PRINTS: libreta (dispensador) de stickers, se agrega más abajo en el body ── -->
 
 
   <!-- ── PRELOADER ── -->
@@ -2254,8 +2231,8 @@
     });
   </script>
 
-  <!-- ── PRINTS: stack arrastrable, solo mobile (ver CSS) ── -->
-  <div class="print-stack" id="print-stack" aria-hidden="true" style="bottom: 110px; right: 20px;">
+  <!-- ── PRINTS: libreta de stickers, fija a la pantalla (desktop + mobile) ── -->
+  <div class="print-stack" id="print-stack" aria-hidden="true">
     <div class="print-stack__layer"></div>
     <div class="print-stack__layer"></div>
     <img class="print-stack__img" id="print-stack-img" src="Trabajos/Prints/Print1.webp" alt="" draggable="false" />
@@ -2263,91 +2240,21 @@
   </div>
 
   <script>
-    /* ─ Prints: arrastrar stickers fijos a la pantalla (desktop) ─
-       Cada sticker es position:fixed dentro de un contenedor fixed;
-       se mueve seteando left/top en px. La posición elegida por el
-       usuario se guarda en localStorage por sticker, así no "salta"
-       de vuelta a su lugar original al recargar la página. */
+    /* ─ Prints: libreta de stickers (dispensador) ────────────────
+       - La libreta (#print-stack) es fija a la pantalla: siempre a
+         mano, igual en desktop y mobile. Un tap corto pasa al
+         siguiente print. Arrastrar más allá de un pequeño umbral
+         "pega" una copia del print actual en la página, justo donde
+         se soltó — luego la libreta pasa sola al siguiente print.
+       - Los stickers ya pegados (.placed-sticker) son position:
+         absolute (no fixed), así quedan pegados a ese punto exacto
+         del documento y se mueven con el scroll, como pediste. Se
+         pueden volver a arrastrar para reacomodarlos.
+       - Todo queda guardado en localStorage: la libreta recuerda en
+         qué print se quedó y la página recuerda qué stickers están
+         pegados y dónde, para que no desaparezcan al recargar. */
     (function () {
-      var layer = document.getElementById('sticker-layer');
-      if (!layer) return;
-      var stickers = layer.querySelectorAll('.sticker');
-      var STORE_PREFIX = 'zatana-sticker-pos-';
-
-      stickers.forEach(function (el) {
-        // Restaurar posición guardada, si existe
-        try {
-          var saved = localStorage.getItem(STORE_PREFIX + el.id);
-          if (saved) {
-            var pos = JSON.parse(saved);
-            el.style.left = pos.left + 'px';
-            el.style.top  = pos.top + 'px';
-          }
-        } catch (e) { /* localStorage no disponible: se ignora, no rompe nada */ }
-
-        var dragging  = false;
-        var offsetX   = 0;
-        var offsetY   = 0;
-
-        el.addEventListener('pointerdown', function (e) {
-          dragging = true;
-          el.classList.add('is-dragging');
-          el.setPointerCapture(e.pointerId);
-
-          var rect = el.getBoundingClientRect();
-          // Fijar la posición actual en px (por si venía puesta en %)
-          el.style.left = rect.left + 'px';
-          el.style.top  = rect.top + 'px';
-
-          offsetX = e.clientX - rect.left;
-          offsetY = e.clientY - rect.top;
-        });
-
-        el.addEventListener('pointermove', function (e) {
-          if (!dragging) return;
-          var w = el.offsetWidth;
-          var h = el.offsetHeight;
-          // Deja siempre una porción visible del sticker dentro del viewport
-          var minVisible = 24;
-          var newLeft = e.clientX - offsetX;
-          var newTop  = e.clientY - offsetY;
-          newLeft = Math.max(minVisible - w, Math.min(newLeft, window.innerWidth  - minVisible));
-          newTop  = Math.max(minVisible - h, Math.min(newTop,  window.innerHeight - minVisible));
-          el.style.left = newLeft + 'px';
-          el.style.top  = newTop  + 'px';
-        });
-
-        function endDrag(e) {
-          if (!dragging) return;
-          dragging = false;
-          el.classList.remove('is-dragging');
-          try {
-            el.releasePointerCapture(e.pointerId);
-          } catch (err) {}
-          try {
-            localStorage.setItem(STORE_PREFIX + el.id, JSON.stringify({
-              left: parseFloat(el.style.left),
-              top:  parseFloat(el.style.top)
-            }));
-          } catch (e) { /* si falla el guardado, el sticker igual quedó movido en pantalla */ }
-        }
-
-        el.addEventListener('pointerup', endDrag);
-        el.addEventListener('pointercancel', endDrag);
-      });
-    })();
-
-    /* ─ Prints: stack arrastrable en mobile, tap = siguiente imagen ─
-       Mismo mecanismo de arrastre que los stickers de desktop, pero
-       en un solo elemento. Si el dedo se movió poco y soltó rápido,
-       se interpreta como "tap" y rota a la siguiente foto del stack;
-       si hubo arrastre real, solo se mueve de lugar. */
-    (function () {
-      var stack = document.getElementById('print-stack');
-      if (!stack) return;
-      var img   = document.getElementById('print-stack-img');
-      var badge = document.getElementById('print-stack-badge');
-      var files = [
+      var FILES = [
         'Trabajos/Prints/Print1.webp',
         'Trabajos/Prints/Print2.webp',
         'Trabajos/Prints/Print3.webp',
@@ -2355,98 +2262,165 @@
         'Trabajos/Prints/Print5.webp',
         'Trabajos/Prints/Print6.webp'
       ];
-      var POS_KEY = 'zatana-print-stack-pos';
-      var IDX_KEY = 'zatana-print-stack-idx';
-      var idx = 0;
+      var IDX_KEY        = 'zatana-print-stack-idx';
+      var PLACED_KEY     = 'zatana-placed-stickers';
+      var DRAG_THRESHOLD = 8; // px: menos que esto se interpreta como "tap"
 
+      var stack     = document.getElementById('print-stack');
+      var stackImg   = document.getElementById('print-stack-img');
+      var stackBadge = document.getElementById('print-stack-badge');
+      if (!stack) return;
+
+      /* ── Estado de la libreta ── */
+      var idx = 0;
       try {
         var savedIdx = localStorage.getItem(IDX_KEY);
-        if (savedIdx !== null) idx = (parseInt(savedIdx, 10) || 0) % files.length;
+        if (savedIdx !== null) idx = (parseInt(savedIdx, 10) || 0) % FILES.length;
       } catch (e) {}
 
-      try {
-        var savedPos = localStorage.getItem(POS_KEY);
-        if (savedPos) {
-          var pos = JSON.parse(savedPos);
-          stack.style.left   = pos.left + 'px';
-          stack.style.top    = pos.top  + 'px';
-          stack.style.right  = 'auto';
-          stack.style.bottom = 'auto';
-        }
-      } catch (e) {}
-
-      function render() {
-        img.src = files[idx];
-        badge.textContent = (idx + 1) + '/' + files.length;
+      function renderStack() {
+        stackImg.src = FILES[idx];
+        stackBadge.textContent = (idx + 1) + '/' + FILES.length;
       }
-      render();
+      renderStack();
 
-      var dragging   = false;
-      var startX = 0, startY = 0, offsetX = 0, offsetY = 0;
-      var moved      = false;
-      var DRAG_THRESHOLD = 8; // px: menos que esto se considera "tap"
+      function advanceStack() {
+        idx = (idx + 1) % FILES.length;
+        try { localStorage.setItem(IDX_KEY, String(idx)); } catch (e) {}
+        renderStack();
+      }
 
+      /* ── Stickers ya pegados a la página ── */
+      function loadPlaced() {
+        try {
+          var raw = localStorage.getItem(PLACED_KEY);
+          return raw ? JSON.parse(raw) : [];
+        } catch (e) { return []; }
+      }
+      function savePlaced() {
+        try { localStorage.setItem(PLACED_KEY, JSON.stringify(placedList)); } catch (e) {}
+      }
+      var placedList = loadPlaced();
+
+      function makeMovable(el, data) {
+        var dragging = false, moved = false;
+        var startX = 0, startY = 0, offsetX = 0, offsetY = 0;
+
+        el.addEventListener('pointerdown', function (e) {
+          dragging = true;
+          moved = false;
+          el.classList.add('is-dragging');
+          el.setPointerCapture(e.pointerId);
+          var rect = el.getBoundingClientRect();
+          startX = e.clientX;
+          startY = e.clientY;
+          offsetX = e.clientX - rect.left;
+          offsetY = e.clientY - rect.top;
+        });
+
+        el.addEventListener('pointermove', function (e) {
+          if (!dragging) return;
+          var dx = e.clientX - startX;
+          var dy = e.clientY - startY;
+          if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) moved = true;
+          if (!moved) return;
+          el.style.left = (e.clientX - offsetX + window.scrollX) + 'px';
+          el.style.top  = (e.clientY - offsetY + window.scrollY) + 'px';
+        });
+
+        function endDrag(e) {
+          if (!dragging) return;
+          dragging = false;
+          el.classList.remove('is-dragging');
+          try { el.releasePointerCapture(e.pointerId); } catch (err) {}
+          if (moved) {
+            data.left = parseFloat(el.style.left);
+            data.top  = parseFloat(el.style.top);
+            savePlaced();
+          }
+        }
+        el.addEventListener('pointerup', endDrag);
+        el.addEventListener('pointercancel', endDrag);
+      }
+
+      function createPlacedEl(data) {
+        var el = document.createElement('img');
+        el.className = 'placed-sticker';
+        el.src = data.file;
+        el.alt = '';
+        el.draggable = false;
+        el.style.left = data.left + 'px';
+        el.style.top  = data.top + 'px';
+        el.style.transform = 'rotate(' + data.rot + 'deg)';
+        document.body.appendChild(el);
+        makeMovable(el, data);
+      }
+
+      // Repone en la página los stickers que ya estaban pegados
+      placedList.forEach(createPlacedEl);
+
+      /* ── Arrastrar desde la libreta y pegar en la página ── */
       stack.addEventListener('pointerdown', function (e) {
-        dragging = true;
-        moved    = false;
+        var moved  = false;
+        var startX = e.clientX;
+        var startY = e.clientY;
+
         stack.classList.add('is-dragging');
         stack.setPointerCapture(e.pointerId);
 
-        var rect = stack.getBoundingClientRect();
-        stack.style.left   = rect.left + 'px';
-        stack.style.top    = rect.top  + 'px';
-        stack.style.right  = 'auto';
-        stack.style.bottom = 'auto';
+        var ghost = document.createElement('img');
+        ghost.className = 'print-drag-ghost';
+        ghost.src = FILES[idx];
+        ghost.style.display = 'none';
+        ghost.style.left = e.clientX + 'px';
+        ghost.style.top  = e.clientY + 'px';
+        ghost.style.transform = 'translate(-50%, -50%)';
+        document.body.appendChild(ghost);
 
-        startX = e.clientX;
-        startY = e.clientY;
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
-      });
-
-      stack.addEventListener('pointermove', function (e) {
-        if (!dragging) return;
-        var dx = e.clientX - startX;
-        var dy = e.clientY - startY;
-        if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
-          moved = true;
+        function onMove(ev) {
+          var dx = ev.clientX - startX;
+          var dy = ev.clientY - startY;
+          if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) moved = true;
+          if (!moved) return;
+          ghost.style.display = 'block';
+          ghost.style.left = ev.clientX + 'px';
+          ghost.style.top  = ev.clientY + 'px';
         }
-        if (!moved) return;
 
-        var w = stack.offsetWidth;
-        var h = stack.offsetHeight;
-        var minVisible = 24;
-        var newLeft = e.clientX - offsetX;
-        var newTop  = e.clientY - offsetY;
-        newLeft = Math.max(minVisible - w, Math.min(newLeft, window.innerWidth  - minVisible));
-        newTop  = Math.max(minVisible - h, Math.min(newTop,  window.innerHeight - minVisible));
-        stack.style.left = newLeft + 'px';
-        stack.style.top  = newTop  + 'px';
-      });
+        function onUp(ev) {
+          stack.classList.remove('is-dragging');
+          try { stack.releasePointerCapture(ev.pointerId); } catch (err) {}
+          stack.removeEventListener('pointermove', onMove);
+          stack.removeEventListener('pointerup', onUp);
+          stack.removeEventListener('pointercancel', onUp);
 
-      function endDrag(e) {
-        if (!dragging) return;
-        dragging = false;
-        stack.classList.remove('is-dragging');
-        try { stack.releasePointerCapture(e.pointerId); } catch (err) {}
+          if (moved) {
+            // Se soltó lejos de la libreta → pegar copia en la página
+            var w = ghost.offsetWidth  || 130;
+            var h = ghost.offsetHeight || 130;
+            var data = {
+              id:   'st-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+              file: FILES[idx],
+              left: ev.clientX - (w / 2) + window.scrollX,
+              top:  ev.clientY - (h / 2) + window.scrollY,
+              rot:  Math.round((Math.random() * 24) - 12)
+            };
+            placedList.push(data);
+            savePlaced();
+            createPlacedEl(data);
+            advanceStack(); // la libreta queda lista para el próximo print
+          } else {
+            // Tap corto sin arrastre real → solo hojear la libreta
+            advanceStack();
+          }
 
-        if (moved) {
-          try {
-            localStorage.setItem(POS_KEY, JSON.stringify({
-              left: parseFloat(stack.style.left),
-              top:  parseFloat(stack.style.top)
-            }));
-          } catch (err) {}
-        } else {
-          // Tap: no hubo arrastre real → siguiente imagen del stack
-          idx = (idx + 1) % files.length;
-          render();
-          try { localStorage.setItem(IDX_KEY, String(idx)); } catch (err) {}
+          ghost.remove();
         }
-      }
 
-      stack.addEventListener('pointerup', endDrag);
-      stack.addEventListener('pointercancel', endDrag);
+        stack.addEventListener('pointermove', onMove);
+        stack.addEventListener('pointerup', onUp);
+        stack.addEventListener('pointercancel', onUp);
+      });
     })();
   </script>
 
