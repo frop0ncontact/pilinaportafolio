@@ -382,18 +382,15 @@
     .avatar-face--back {
       transform: rotateY(180deg);
     }
-    /* La foto original es panorámica (1920×1080) con la cara arriba;
-       con "cover" simple se ve casi el cuerpo entero. Se posiciona y
-       amplía manualmente para encuadrar la cara centrada, tipo retrato. */
+    /* La foto original es panorámica (1920×1080). Con "cover" simple el
+       círculo ya toma el alto completo de la imagen (que calza casi 1:1
+       con el ancho del recorte cuadrado) y solo recorta a los costados,
+       centrado horizontalmente sobre la cara. */
     .avatar-face--back img {
-      position: absolute;
-      width: 256%;
-      height: 144%;
-      max-width: none;
-      left: -81.6%;
-      top: 0;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-      object-position: center center;
+      object-position: 46% center;
     }
 
     /* Hint de interacción: sustituye al tooltip. Vive fuera de .avatar-flip
