@@ -17,14 +17,14 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --pink-bg:      #f5c6e0;
-      --pink-stripe:  #e8a8cc;
-      --card-bg:      #fce8f3;
-      --pink-dark:    #c472a0;
-      --pink-mid:     #d48ab8;
-      --pink-light:   #f0b8d8;
-      --text-main:    #8a3f65;
-      --text-body:    #7a4060;
+      --pink-bg:      #ffe9c2;
+      --pink-stripe:  #f8bc4e;
+      --card-bg:      #fff6e6;
+      --pink-dark:    #b3720a;
+      --pink-mid:     #d99a2b;
+      --pink-light:   #ffd97a;
+      --text-main:    #7a4e10;
+      --text-body:    #6b4519;
       --font-display: 'Cormorant Garamond', serif;
       --font-body:    'Nunito', sans-serif;
       --shadow-card:  0 8px 40px rgba(180, 80, 130, 0.13);
@@ -35,16 +35,11 @@
       overflow-x: hidden;
       font-family: var(--font-body);
       background-color: var(--pink-bg);
-      background-image:
-        repeating-linear-gradient(
-          to right,
-          transparent 0px, transparent 60px,
-          rgba(255,255,255,0.55) 60px, rgba(255,255,255,0.55) 120px,
-          transparent 120px, transparent 160px,
-          var(--pink-stripe) 160px, var(--pink-stripe) 163px,
-          transparent 163px, transparent 220px,
-          rgba(255,255,255,0.55) 220px, rgba(255,255,255,0.55) 280px
-        );
+      background-image: url('ElementosPaginaWeb/Fondo4.png');
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
       padding-top: 80px;
     }
 

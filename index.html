@@ -40,6 +40,63 @@
       --shadow-card:  0 8px 40px rgba(180, 80, 130, 0.13);
     }
 
+    /* ─── Temas por categoría ───
+       Mismas variables que :root, sobreescritas según la categoría activa
+       del carrusel (clase en <body>). Así cards, tipografías y acentos
+       cambian de color junto con el fondo. */
+    body.theme-figurines {
+      --pink-bg:      #f5c6e0;
+      --pink-stripe:  #e596ca;
+      --card-bg:      #fce8f3;
+      --pink-dark:    #c472a0;
+      --pink-mid:     #d48ab8;
+      --pink-light:   #f0b8d8;
+      --text-main:    #8a3f65;
+      --text-body:    #7a4060;
+      --text-soft:    #b06090;
+    }
+    body.theme-fichas {
+      --pink-bg:      #ffe9c2;
+      --pink-stripe:  #f8bc4e;
+      --card-bg:      #fff6e6;
+      --pink-dark:    #b3720a;
+      --pink-mid:     #d99a2b;
+      --pink-light:   #ffd97a;
+      --text-main:    #7a4e10;
+      --text-body:    #6b4519;
+      --text-soft:    #b98735;
+    }
+    body.theme-colecciones {
+      --pink-bg:      #e6cbdd;
+      --pink-stripe:  #967e8e;
+      --card-bg:      #f5e9f0;
+      --pink-dark:    #7a4568;
+      --pink-mid:     #9c6484;
+      --pink-light:   #c9a0b8;
+      --text-main:    #5e3350;
+      --text-body:    #6b4058;
+      --text-soft:    #8d6580;
+    }
+    body.theme-generales {
+      --pink-bg:      #ddf5b0;
+      --pink-stripe:  #8fc23a;
+      --card-bg:      #f3fbe4;
+      --pink-dark:    #5c8f00;
+      --pink-mid:     #7fab2c;
+      --pink-light:   #c3e88a;
+      --text-main:    #446600;
+      --text-body:    #4f7212;
+      --text-soft:    #7f9c4a;
+    }
+
+    /* Transición suave de color al cambiar de tema (categoría) */
+    body, .card, .card *, .navbar, .navbar *, .nav-drawer, .nav-drawer *,
+    .site-footer, .site-footer *, .carousel-wrap, .carousel-wrap *,
+    .sw-icon, .social-link, .avatar-coin, .lightbox-close {
+      transition: background-color 0.7s ease, color 0.7s ease,
+                  border-color 0.7s ease, fill 0.7s ease, stroke 0.7s ease;
+    }
+
     /* ─── Background: striped ─── */
     body {
       min-height: 100vh;
@@ -1356,8 +1413,7 @@
       * { transition: none !important; }
     }
   </style>
-</head>
-<body>
+</head><body class="theme-figurines">
 
   <!-- ── FONDOS DINÁMICOS POR CATEGORÍA ── -->
   <div class="bg-layers" id="bg-layers" aria-hidden="true">
@@ -1647,11 +1703,16 @@
     const PLACEHOLDER = 'https://i.imgur.com/n2Jwp9F.png';
 
     /* ── Fondo dinámico según categoría del carrusel ── */
+    const THEME_CLASSES = ['theme-figurines', 'theme-fichas', 'theme-colecciones', 'theme-generales'];
+
     function setBackgroundForCategory(cat) {
       const layers = document.querySelectorAll('#bg-layers .bg-layer');
       layers.forEach(l => {
         l.classList.toggle('active', l.dataset.cat === cat);
       });
+      // Cambia la paleta de cards, tipografías y acentos junto con el fondo
+      document.body.classList.remove(...THEME_CLASSES);
+      document.body.classList.add('theme-' + cat);
     }
 
     const slides = [
