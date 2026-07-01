@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fichas Técnicas — Zatana</title>
+  <title>Trabajos Generales — Zatana</title>
   <!-- Favicon (logo Zatana) -->
   <link rel="icon" type="image/png" sizes="32x32" href="ElementosPaginaWeb/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="ElementosPaginaWeb/favicon-16.png" />
@@ -35,16 +35,11 @@
       overflow-x: hidden;
       font-family: var(--font-body);
       background-color: var(--pink-bg);
-      background-image:
-        repeating-linear-gradient(
-          to right,
-          transparent 0px, transparent 60px,
-          rgba(255,255,255,0.55) 60px, rgba(255,255,255,0.55) 120px,
-          transparent 120px, transparent 160px,
-          var(--pink-stripe) 160px, var(--pink-stripe) 163px,
-          transparent 163px, transparent 220px,
-          rgba(255,255,255,0.55) 220px, rgba(255,255,255,0.55) 280px
-        );
+      background-image: url('ElementosPaginaWeb/Fondo2.png');
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
       padding-top: 80px;
     }
 
@@ -139,12 +134,18 @@
       font-size: 0.95rem; color: var(--text-body); margin-top: 8px;
     }
 
-    /* ── Page description (lorem ipsum intro) ── */
+    /* ── Page description (intro) ── */
     .page-desc {
-      max-width: 760px; margin: 28px auto 36px; padding: 0 24px;
+      max-width: 760px; margin: 28px auto 36px;
+      width: calc(100% - 40px);
+      padding: 16px 28px;
       font-family: var(--font-body); font-weight: 700;
       font-size: clamp(0.95rem, 1.6vw, 1.15rem); line-height: 1.6;
       color: var(--text-main); text-align: center;
+      background: rgba(252,232,243,0.82);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      border-radius: 18px;
+      box-shadow: 0 6px 28px rgba(180,80,130,0.12);
     }
 
     /* ── Filmstrip gallery (edge-to-edge, transform-driven) ── */
@@ -358,9 +359,9 @@
     <ul class="nav-links" role="list">
       <li><a href="https://zatana.cl">Sobre mí</a></li>
       <li><a href="https://zatana.cl/figurines_moda">Figurines</a></li>
-      <li><a href="https://zatana.cl/fichas_tecnicas" class="active">Fichas Técnicas</a></li>
+      <li><a href="https://zatana.cl/fichas_tecnicas">Fichas Técnicas</a></li>
       <li><a href="https://zatana.cl/colecciones">Colecciones</a></li>
-      <li><a href="https://zatana.cl/trabajos_generales">Trabajos Generales</a></li>
+      <li><a href="https://zatana.cl/trabajos_generales" class="active">Trabajos Generales</a></li>
     </ul>
     <button class="nav-hamburger" aria-label="Abrir menú" aria-expanded="false"
       aria-controls="nav-drawer-fig" onclick="toggleMenu(this)">
@@ -379,15 +380,15 @@
   <header class="page-header">
     <a class="page-header__back" href="https://zatana.cl">← Volver</a>
     <div class="page-header__card">
-      <h1 class="page-header__title">Fichas Técnicas</h1>
-      <p class="page-header__sub">Construcción · materiales · especificaciones técnicas</p>
+      <h1 class="page-header__title">Trabajos Generales</h1>
+      <p class="page-header__sub">Mockups · maquetas · prototipos</p>
     </div>
   </header>
 
   <main>
-    <p class="page-desc" id="page-desc">Selección de fichas técnicas descriptivas y de diseño elaboradas para propuestas personales, donde se detallan aspectos constructivos, materiales y características de cada prenda.</p>
+    <p class="page-desc" id="page-desc">Trabajos, mockups y maquetas variadas de los diseños: prototipos, muestras y piezas que exploran materialidades, volúmenes y acabados fuera de las categorías principales.</p>
 
-    <section class="filmstrip-section" aria-label="Galería de fichas técnicas">
+    <section class="filmstrip-section" aria-label="Galería de trabajos generales">
       <div class="filmstrip-outer" id="filmstrip-outer">
         <div class="filmstrip" id="filmstrip"></div>
       </div>
@@ -417,13 +418,29 @@
 
   <script>
     const images = [
-      { src: 'Trabajos/Fichas_Tecnicas/Afterlife-10.webp',                                              alt: 'Ficha Técnica — Afterlife 10' },
-      { src: 'Trabajos/Fichas_Tecnicas/Ficha-Tecnica-like-a-villain-Renata.pdf_20260624_204236_0002.webp', alt: 'Ficha Técnica — Like a Villain, Renata (1)' },
-      { src: 'Trabajos/Fichas_Tecnicas/Ficha-Tecnica-like-a-villain-Renata.pdf_20260624_204236_0003.webp', alt: 'Ficha Técnica — Like a Villain, Renata (2)' },
-      { src: 'Trabajos/Fichas_Tecnicas/Ficha-Tecnica-like-a-villain-Renata.pdf_20260624_204237_0005.webp', alt: 'Ficha Técnica — Like a Villain, Renata (3)' },
-      { src: 'Trabajos/Fichas_Tecnicas/Ficha-Tecnica-like-a-villain-Renata.pdf_20260624_204236_0004.webp', alt: 'Ficha Técnica — Like a Villain, Renata (4)' },
-      { src: 'Trabajos/Fichas_Tecnicas/2.webp',                                                          alt: 'Ficha Técnica 2' },
-      { src: 'Trabajos/Fichas_Tecnicas/Afterlife-9.webp',                                                alt: 'Ficha Técnica — Afterlife 9' },
+      { src: 'Trabajos/Trabajos_Generales/7.webp',  alt: 'Trabajo general 7'  },
+      { src: 'Trabajos/Trabajos_Generales/8.webp',  alt: 'Trabajo general 8'  },
+      { src: 'Trabajos/Trabajos_Generales/9.webp',  alt: 'Trabajo general 9'  },
+      { src: 'Trabajos/Trabajos_Generales/10.webp', alt: 'Trabajo general 10' },
+      { src: 'Trabajos/Trabajos_Generales/11.webp', alt: 'Trabajo general 11' },
+      { src: 'Trabajos/Trabajos_Generales/12.webp', alt: 'Trabajo general 12' },
+      { src: 'Trabajos/Trabajos_Generales/13.webp', alt: 'Trabajo general 13' },
+      { src: 'Trabajos/Trabajos_Generales/14.webp', alt: 'Trabajo general 14' },
+      { src: 'Trabajos/Trabajos_Generales/15.webp', alt: 'Trabajo general 15' },
+      { src: 'Trabajos/Trabajos_Generales/16.webp', alt: 'Trabajo general 16' },
+      { src: 'Trabajos/Trabajos_Generales/17.webp', alt: 'Trabajo general 17' },
+      { src: 'Trabajos/Trabajos_Generales/18.webp', alt: 'Trabajo general 18' },
+      { src: 'Trabajos/Trabajos_Generales/19.webp', alt: 'Trabajo general 19' },
+      { src: 'Trabajos/Trabajos_Generales/20.webp', alt: 'Trabajo general 20' },
+      { src: 'Trabajos/Trabajos_Generales/21.webp', alt: 'Trabajo general 21' },
+      { src: 'Trabajos/Trabajos_Generales/22.webp', alt: 'Trabajo general 22' },
+      { src: 'Trabajos/Trabajos_Generales/23.webp', alt: 'Trabajo general 23' },
+      { src: 'Trabajos/Trabajos_Generales/1.webp',  alt: 'Trabajo general 1'  },
+      { src: 'Trabajos/Trabajos_Generales/2.webp',  alt: 'Trabajo general 2'  },
+      { src: 'Trabajos/Trabajos_Generales/3.webp',  alt: 'Trabajo general 3'  },
+      { src: 'Trabajos/Trabajos_Generales/4.webp',  alt: 'Trabajo general 4'  },
+      { src: 'Trabajos/Trabajos_Generales/5.webp',  alt: 'Trabajo general 5'  },
+      { src: 'Trabajos/Trabajos_Generales/6.webp',  alt: 'Trabajo general 6'  },
     ];
 
     let current = 0;
