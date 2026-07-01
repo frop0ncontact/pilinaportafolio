@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Colecciones — Zatana</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pink-bg:      #f5c6e0;
+      --pink-stripe:  #e8a8cc;
+      --card-bg:      #fce8f3;
+      --pink-dark:    #c472a0;
+      --pink-mid:     #d48ab8;
+      --pink-light:   #f0b8d8;
+      --text-main:    #8a3f65;
+      --text-body:    #7a4060;
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body:    'Nunito', sans-serif;
+      --shadow-card:  0 8px 40px rgba(180, 80, 130, 0.13);
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      font-family: var(--font-body);
+      background-color: var(--pink-bg);
+      background-image:
+        repeating-linear-gradient(
+          to right,
+          transparent 0px, transparent 60px,
+          rgba(255,255,255,0.55) 60px, rgba(255,255,255,0.55) 120px,
+          transparent 120px, transparent 160px,
+          var(--pink-stripe) 160px, var(--pink-stripe) 163px,
+          transparent 163px, transparent 220px,
+          rgba(255,255,255,0.55) 220px, rgba(255,255,255,0.55) 280px
+        );
+      padding-top: 80px;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 60px; display: flex; align-items: center;
+      justify-content: space-between; padding: 0 40px;
+      background: rgba(252,232,243,0.72);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(212,138,184,0.25);
+    }
+    .nav-logo { display: flex; align-items: center; text-decoration: none; height: 44px; }
+    .nav-logo img { height: 44px; width: auto; display: block; }
+    .nav-divider { width: 1px; height: 22px; background: var(--pink-light); opacity: 0.7; }
+    .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+    .nav-links a {
+      font-family: var(--font-display); font-size: 1rem; font-weight: 400;
+      color: var(--text-main); text-decoration: none; letter-spacing: 0.05em;
+      position: relative; transition: color 0.2s;
+    }
+    .nav-links a.active, .nav-links a:hover { color: var(--pink-dark); }
+    .nav-links a::after {
+      content: ''; position: absolute; left: 0; bottom: -3px;
+      width: 0; height: 1.5px; background: var(--pink-dark); transition: width 0.25s ease;
+    }
+    .nav-links a.active::after, .nav-links a:hover::after { width: 100%; }
+    .nav-hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; background: none; border: none; padding: 4px;
+    }
+    .nav-hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: var(--pink-dark); border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .nav-drawer {
+      display: none; position: fixed; top: 60px; left: 0; right: 0;
+      background: rgba(252,232,243,0.97); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(212,138,184,0.2);
+      z-index: 99; padding: 24px 32px 28px; flex-direction: column; gap: 20px;
+    }
+    .nav-drawer.open { display: flex; }
+    .nav-drawer a {
+      font-family: var(--font-display); font-size: 1.25rem; font-weight: 400;
+      color: var(--text-main); text-decoration: none; letter-spacing: 0.04em;
+      padding: 6px 0; border-bottom: 1px solid rgba(212,138,184,0.15); transition: color 0.2s;
+    }
+    .nav-drawer a:hover { color: var(--pink-dark); }
+
+    /* ── Page header ── */
+    .page-header {
+      max-width: 960px; margin: 32px auto 0; padding: 0 20px;
+    }
+
+    /* Botón volver — pill con fondo */
+    .page-header__back {
+      font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
+      color: var(--pink-dark); text-decoration: none;
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--card-bg);
+      border: 1.5px solid var(--pink-light);
+      border-radius: 999px;
+      padding: 6px 16px;
+      box-shadow: 0 2px 8px rgba(180,80,130,0.10);
+      transition: background 0.2s, box-shadow 0.2s;
+      margin-bottom: 14px;
+    }
+    .page-header__back:hover {
+      background: var(--pink-light);
+      box-shadow: 0 4px 16px rgba(180,80,130,0.18);
+    }
+
+    /* Card que envuelve título + subtítulo */
+    .page-header__card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 8px 40px rgba(180,80,130,0.13);
+      padding: 28px 36px 24px;
+    }
+
+    .page-header__title {
+      font-family: var(--font-display); font-weight: 700;
+      font-size: clamp(2rem, 5vw, 3.2rem); color: var(--pink-dark);
+      text-transform: uppercase; letter-spacing: -0.01em; line-height: 1;
+    }
+    .page-header__sub {
+      font-family: var(--font-body); font-weight: 400;
+      font-size: 0.95rem; color: var(--text-body); margin-top: 8px;
+    }
+
+    /* ── Page description (lorem ipsum intro) ── */
+    .page-desc {
+      max-width: 760px; margin: 28px auto 36px; padding: 0 24px;
+      font-family: var(--font-body); font-weight: 700;
+      font-size: clamp(0.95rem, 1.6vw, 1.15rem); line-height: 1.6;
+      color: var(--text-main); text-align: center;
+    }
+
+    /* ── Filmstrip gallery (edge-to-edge, transform-driven) ── */
+    .filmstrip-section {
+      margin: 0 0 28px;
+    }
+    .filmstrip-outer {
+      width: 100vw;
+      position: relative;
+      left: 50%;
+      right: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+      overflow: hidden;
+    }
+    .filmstrip {
+      display: flex;
+      align-items: stretch;
+      gap: 18px;
+      padding: 4px 8vw;
+      will-change: transform;
+      transform: translateX(0px);
+    }
+    .filmstrip__item {
+      flex-shrink: 0;
+      height: 420px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      cursor: zoom-in;
+      position: relative;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .filmstrip__item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(180,80,130,0.22);
+    }
+    .filmstrip__item.active {
+      transform: scale(1.08);
+      box-shadow: 0 18px 50px rgba(180,80,130,0.3);
+      z-index: 2;
+    }
+    .filmstrip__item.active:hover {
+      transform: scale(1.1);
+    }
+    .filmstrip__item img {
+      height: 100%;
+      width: auto;
+      max-width: none;
+      display: block;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .filmstrip__item:hover img { transform: scale(1.03); }
+    .filmstrip__item::after {
+      content: '🔍'; position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; background: rgba(196,114,160,0.12);
+      opacity: 0; transition: opacity 0.25s; pointer-events: none;
+    }
+    .filmstrip__item:hover::after { opacity: 1; }
+
+    /* ── PDF thumbnails (filmstrip items rendered from PDF page 1) ── */
+    .filmstrip__item.pdf-item {
+      background: var(--pink-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .filmstrip__item.pdf-item canvas {
+      height: 100%;
+      width: auto;
+      max-width: none;
+      display: block;
+    }
+    .pdf-badge {
+      position: absolute; top: 10px; right: 10px; z-index: 2;
+      background: rgba(60,10,35,0.78); color: #fff;
+      font-family: var(--font-body); font-weight: 700; font-size: 0.66rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 999px; pointer-events: none;
+    }
+    .pdf-caption {
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+      padding: 14px 16px 12px;
+      background: linear-gradient(to top, rgba(60,10,35,0.78), transparent);
+      color: #fff; font-family: var(--font-display); font-weight: 600;
+      font-size: 1.1rem; letter-spacing: 0.01em; pointer-events: none;
+    }
+    .pdf-thumb-spinner {
+      position: absolute; inset: 0; z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-body); font-size: 0.78rem; font-weight: 600;
+      color: var(--pink-dark); letter-spacing: 0.06em;
+    }
+
+    /* Keyframes injected per-transition (set via JS) attach to this name */
+    @keyframes fsSlide {
+      from { transform: translateX(var(--fs-from, 0px)); }
+      to   { transform: translateX(var(--fs-to, 0px)); }
+    }
+    .filmstrip.sliding {
+      animation: fsSlide 0.48s cubic-bezier(0.4,0,0.2,1) forwards;
+    }
+
+    /* ── Filmstrip nav (arrows + counter) ── */
+    .filmstrip-nav {
+      display: flex; align-items: center; justify-content: center;
+      gap: 22px; margin: 22px auto 0;
+    }
+    .filmstrip-nav .carousel-arrow {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--pink-dark); color: white; border: none;
+      font-size: 1.4rem; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 3px 12px rgba(180,80,130,0.28);
+    }
+    .filmstrip-nav .carousel-arrow:hover { background: var(--text-main); transform: scale(1.08); }
+    .filmstrip-counter {
+      font-family: var(--font-body); font-weight: 700; font-size: 0.95rem;
+      color: var(--text-main); min-width: 48px; text-align: center;
+    }
+
+    /* ── Diamond timeline (reused from main page) ── */
+    .carousel-timeline {
+      display: flex; align-items: center; gap: 6px;
+      max-width: 640px; margin: 22px auto 0; padding: 0 24px;
+    }
+    .carousel-timeline__track {
+      flex: 1; display: flex; align-items: center; position: relative;
+    }
+    .carousel-timeline__line { flex: 1; height: 1px; background: var(--pink-mid); opacity: 0.35; }
+    .carousel-timeline__diamond {
+      width: 10px; height: 10px;
+      border: 1.5px solid var(--pink-mid); background: transparent;
+      transform: rotate(45deg); flex-shrink: 0; cursor: pointer;
+      transition: border-color 0.35s ease, background 0.35s ease;
+      position: relative; z-index: 1; padding: 0;
+    }
+    .carousel-timeline__diamond.active { border-color: rgba(196,114,160,0.5); }
+    .carousel-timeline__indicator {
+      position: absolute; width: 12px; height: 12px;
+      background: var(--pink-dark); border: none;
+      pointer-events: none;
+      top: 50%; left: 0;
+      margin-top: -6px; margin-left: -6px;
+      transform: translateX(0px) rotate(45deg) scale(1);
+      box-shadow: 0 0 0 3px rgba(196,114,160,0.22);
+      z-index: 2;
+    }
+    /* Keyframes injected per-transition (set via JS) attach to this name.
+       Movement + pop happen in the same transform-only animation so it stays
+       GPU-accelerated and renders identically across browsers/devices. */
+    @keyframes fsIndicatorMove {
+      0%   { transform: translateX(var(--ind-from, 0px)) rotate(45deg) scale(0.85); }
+      55%  { transform: translateX(var(--ind-to, 0px)) rotate(45deg) scale(1.5); }
+      100% { transform: translateX(var(--ind-to, 0px)) rotate(45deg) scale(1); }
+    }
+    .carousel-timeline__indicator.moving {
+      animation: fsIndicatorMove 0.42s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+
+    /* ── PDF Viewer Modal ── */
+    @keyframes pdfModalIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+
+    .pdf-modal {
+      display: none; position: fixed; inset: 0; z-index: 300;
+      background: rgba(60,10,35,0.82);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .pdf-modal.open { display: flex; }
+    .pdf-modal__inner {
+      background: #f0f0f0; border-radius: 20px; overflow: hidden;
+      width: 100%; max-width: 880px; height: 90vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 32px 80px rgba(60,10,35,0.45);
+      animation: pdfModalIn 0.25s ease;
+    }
+    .pdf-modal__toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 18px; background: var(--card-bg);
+      border-bottom: 1px solid var(--pink-light);
+      flex-shrink: 0; gap: 10px; flex-wrap: wrap;
+    }
+    .pdf-modal__title {
+      font-family: var(--font-display); font-weight: 600; font-size: 1.05rem;
+      color: var(--pink-dark); letter-spacing: 0.02em;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 220px;
+    }
+    .pdf-modal__actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .pdf-modal__divider { width: 1px; height: 20px; background: var(--pink-light); margin: 0 4px; }
+    .pdf-icon-btn {
+      background: var(--card-bg); border: 1.5px solid var(--pink-mid); border-radius: 8px;
+      color: var(--pink-dark); font-size: 1.05rem; font-weight: 700;
+      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.2s, color 0.2s; flex-shrink: 0;
+    }
+    .pdf-icon-btn:hover:not(:disabled) { background: var(--pink-dark); color: white; }
+    .pdf-icon-btn:disabled { opacity: 0.4; cursor: default; }
+    .pdf-page-label, .pdf-zoom-label {
+      font-family: var(--font-body); font-size: 0.78rem; font-weight: 600;
+      color: var(--pink-mid); min-width: 46px; text-align: center;
+    }
+    .pdf-modal__download {
+      font-family: var(--font-body); font-size: 0.82rem; font-weight: 600;
+      color: var(--pink-dark); text-decoration: none;
+      border: 1.5px solid var(--pink-mid); border-radius: 999px;
+      padding: 5px 14px; transition: background 0.2s, color 0.2s; white-space: nowrap;
+    }
+    .pdf-modal__download:hover { background: var(--pink-dark); color: white; }
+    .pdf-modal__close {
+      background: none; border: none; font-size: 1.5rem; color: var(--pink-dark);
+      cursor: pointer; line-height: 1; opacity: 0.7; transition: opacity 0.2s; padding: 2px 6px;
+    }
+    .pdf-modal__close:hover { opacity: 1; }
+    .pdf-modal__body {
+      flex: 1; overflow: auto; display: flex;
+      align-items: flex-start; justify-content: center;
+      padding: 24px; position: relative;
+    }
+    .pdf-modal__body canvas {
+      max-width: 100%; height: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      display: block; border-radius: 4px; background: white;
+    }
+    .pdf-modal__loading {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
+      color: var(--pink-dark); letter-spacing: 0.05em;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
+      .navbar { padding: 0 20px; }
+      .nav-links, .nav-divider { display: none; }
+      .nav-hamburger { display: flex; }
+      .filmstrip { padding: 4px 6vw; gap: 12px; }
+      .filmstrip__item { height: 280px; border-radius: 12px; }
+      .filmstrip-nav { gap: 16px; }
+      .filmstrip-nav .carousel-arrow { width: 38px; height: 38px; font-size: 1.1rem; }
+      .pdf-modal { padding: 0; }
+      .pdf-modal__inner { max-width: 100%; height: 100vh; border-radius: 0; }
+      .pdf-modal__title { max-width: 130px; font-size: 0.92rem; }
+      .pdf-modal__body { padding: 14px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="navbar" role="banner">
+    <a class="nav-logo" href="https://zatana.cl" aria-label="Inicio — Zatana">
+      <img src="ElementosPaginaWeb/Logo%20Nabvar.png" alt="Logo Zatana" />
+    </a>
+    <div class="nav-divider" aria-hidden="true"></div>
+    <ul class="nav-links" role="list">
+      <li><a href="https://zatana.cl">Sobre mí</a></li>
+      <li><a href="https://zatana.cl/figurines_moda">Figurines</a></li>
+      <li><a href="https://zatana.cl/fichas_tecnicas">Fichas Técnicas</a></li>
+      <li><a href="https://zatana.cl/colecciones" class="active">Colecciones</a></li>
+      <li><a href="https://zatana.cl/trabajos_analogos">Análogos</a></li>
+    </ul>
+    <button class="nav-hamburger" aria-label="Abrir menú" aria-expanded="false"
+      aria-controls="nav-drawer-fig" onclick="toggleMenu(this)">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <nav class="nav-drawer" id="nav-drawer-fig" aria-label="Menú principal">
+    <a href="https://zatana.cl"             onclick="closeMenu()">Sobre mí</a>
+    <a href="https://zatana.cl/figurines_moda"    onclick="closeMenu()">Figurines de Moda</a>
+    <a href="https://zatana.cl/fichas_tecnicas"   onclick="closeMenu()">Fichas Técnicas</a>
+    <a href="https://zatana.cl/colecciones"       onclick="closeMenu()">Colecciones</a>
+    <a href="https://zatana.cl/trabajos_analogos" onclick="closeMenu()">Trabajos Análogos</a>
+  </nav>
+
+  <header class="page-header">
+    <a class="page-header__back" href="https://zatana.cl">← Volver</a>
+    <div class="page-header__card">
+      <h1 class="page-header__title">Colecciones</h1>
+      <p class="page-header__sub">Moodboard · proceso creativo · conceptualización</p>
+    </div>
+  </header>
+
+  <main>
+    <p class="page-desc" id="page-desc">Recopilación de las principales colecciones desarrolladas durante mi etapa de formación, acompañadas de sus respectivos moodboards, procesos creativos y conceptualizaciones que reflejan la identidad de cada propuesta.</p>
+
+    <section class="filmstrip-section" aria-label="Galería de colecciones">
+      <div class="filmstrip-outer" id="filmstrip-outer">
+        <div class="filmstrip" id="filmstrip"></div>
+      </div>
+
+      <div class="filmstrip-nav">
+        <button class="carousel-arrow" onclick="filmstripStep(-1)" aria-label="Anterior">‹</button>
+        <span class="filmstrip-counter" id="fs-counter">1 / 1</span>
+        <button class="carousel-arrow" onclick="filmstripStep(1)" aria-label="Siguiente">›</button>
+      </div>
+
+      <div class="carousel-timeline">
+        <div class="carousel-timeline__track" id="fs-track"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="pdf-modal" id="pdf-modal" role="dialog" aria-modal="true"
+    aria-label="Visor de colección PDF" onclick="handlePdfModalClick(event)">
+    <div class="pdf-modal__inner" onclick="event.stopPropagation()">
+      <div class="pdf-modal__toolbar">
+        <span class="pdf-modal__title" id="pdf-modal-title">—</span>
+        <div class="pdf-modal__actions">
+          <button class="pdf-icon-btn" id="pdf-prev-btn" onclick="pdfPrevPage()" aria-label="Página anterior">‹</button>
+          <span class="pdf-page-label" id="pdf-page-label">1 / 1</span>
+          <button class="pdf-icon-btn" id="pdf-next-btn" onclick="pdfNextPage()" aria-label="Página siguiente">›</button>
+          <span class="pdf-modal__divider"></span>
+          <button class="pdf-icon-btn" onclick="pdfZoom(-1)" aria-label="Reducir">−</button>
+          <span class="pdf-zoom-label" id="pdf-zoom-label">100%</span>
+          <button class="pdf-icon-btn" onclick="pdfZoom(1)" aria-label="Ampliar">+</button>
+          <a class="pdf-modal__download" id="pdf-download-link" download>⬇ Descargar</a>
+          <button class="pdf-modal__close" onclick="closePdfModal()" aria-label="Cerrar">✕</button>
+        </div>
+      </div>
+      <div class="pdf-modal__body" id="pdf-modal-body">
+        <canvas id="pdf-modal-canvas"></canvas>
+        <span class="pdf-modal__loading" id="pdf-modal-loading">Cargando…</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    const collections = [
+      { title: 'Proyecto de Título', file: 'Trabajos/Colecciones/Proyecto de título_compressed.pdf' },
+      { title: 'Ruina',              file: 'Trabajos/Colecciones/Ruina_compressed.pdf' },
+      { title: 'Afterlife',          file: 'Trabajos/Colecciones/Afterlife_compressed.pdf' },
+      { title: 'Contemptress',       file: 'Trabajos/Colecciones/Contemptress_compressed.pdf' },
+      { title: 'Laminde',            file: 'Trabajos/Colecciones/Laminde_compressed.pdf' },
+      { title: 'Like a Villain',     file: 'Trabajos/Colecciones/Like a villain_compressed.pdf' },
+    ];
+
+    let current = 0;
+    const pdfDocCache = {}; // index -> loaded pdfjs document (reused between thumbnail + modal)
+
+    /* ── Build filmstrip + timeline from the collections array ── */
+    const outerEl     = document.getElementById('filmstrip-outer');
+    const filmstripEl = document.getElementById('filmstrip');
+    const trackEl      = document.getElementById('fs-track');
+
+    collections.forEach((col, i) => {
+      const item = document.createElement('div');
+      item.className = 'filmstrip__item pdf-item' + (i === 0 ? ' active' : '');
+      item.dataset.index = i;
+      item.onclick = () => openPdfModal(i);
+      item.innerHTML =
+        `<span class="pdf-thumb-spinner">Cargando…</span>` +
+        `<canvas></canvas>` +
+        `<span class="pdf-badge">PDF</span>` +
+        `<span class="pdf-caption">${col.title}</span>`;
+      filmstripEl.appendChild(item);
+
+      if (i > 0) trackEl.appendChild(document.createElement('div')).className = 'carousel-timeline__line';
+      const diamond = document.createElement('button');
+      diamond.className = 'carousel-timeline__diamond' + (i === 0 ? ' active' : '');
+      diamond.dataset.index = i;
+      diamond.setAttribute('aria-label', col.title);
+      diamond.onclick = () => filmstripGoTo(i);
+      trackEl.appendChild(diamond);
+    });
+    const indicatorEl = document.createElement('div');
+    indicatorEl.className = 'carousel-timeline__indicator';
+    indicatorEl.id = 'fs-indicator';
+    trackEl.appendChild(indicatorEl);
+
+    document.getElementById('fs-counter').textContent = '1 / ' + collections.length;
+
+    /* ── Filmstrip navigation ──
+       Both the image slide and the diamond indicator move via real
+       @keyframes (transform-only, GPU-accelerated) instead of relying on
+       native smooth-scroll or transitions on layout properties. That keeps
+       the motion identical across browsers/devices and respects each
+       device's own rendering pipeline rather than a scroll API that some
+       mobile browsers implement inconsistently. */
+
+    let fsOffset  = 0; // current translateX applied to the filmstrip (negative px)
+    let indOffset = 0; // current translateX applied to the indicator (positive px)
+
+    function getFsTarget(i) {
+      const item = filmstripEl.children[i];
+      if (!item) return 0;
+      const viewportWidth = outerEl.clientWidth;
+      const itemCenter    = item.offsetLeft + item.offsetWidth / 2;
+      // No clamping: the active image must always be centered, even at the
+      // first/last item (revealing the page background at the edges).
+      return (viewportWidth / 2) - itemCenter;
+    }
+
+    function getIndTarget() {
+      const target = trackEl.querySelector('.carousel-timeline__diamond.active');
+      if (!target) return 0;
+      const trackRect  = trackEl.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      return targetRect.left - trackRect.left + targetRect.width / 2;
+    }
+
+    function animateFilmstrip(toX) {
+      filmstripEl.style.setProperty('--fs-from', fsOffset + 'px');
+      filmstripEl.style.setProperty('--fs-to', toX + 'px');
+      filmstripEl.classList.remove('sliding');
+      void filmstripEl.offsetWidth; // restart animation
+      filmstripEl.classList.add('sliding');
+      filmstripEl.style.transform = `translateX(${toX}px)`;
+      fsOffset = toX;
+    }
+
+    function animateIndicator(toX) {
+      indicatorEl.style.setProperty('--ind-from', indOffset + 'px');
+      indicatorEl.style.setProperty('--ind-to', toX + 'px');
+      indicatorEl.classList.remove('moving');
+      void indicatorEl.offsetWidth; // restart animation
+      indicatorEl.classList.add('moving');
+      indicatorEl.style.transform = `translateX(${toX}px) rotate(45deg) scale(1)`;
+      indOffset = toX;
+    }
+
+    function setFilmstripActive(i) {
+      current = i;
+      Array.from(filmstripEl.children).forEach((item, idx) => {
+        item.classList.toggle('active', idx === i);
+      });
+      document.querySelectorAll('#fs-track .carousel-timeline__diamond').forEach(d => {
+        d.classList.toggle('active', parseInt(d.dataset.index) === i);
+      });
+      document.getElementById('fs-counter').textContent = (i + 1) + ' / ' + collections.length;
+    }
+
+    function filmstripGoTo(i) {
+      i = (i + collections.length) % collections.length;
+      setFilmstripActive(i);
+      animateFilmstrip(getFsTarget(i));
+      animateIndicator(getIndTarget());
+    }
+
+    function filmstripStep(dir) {
+      filmstripGoTo(current + dir);
+    }
+
+    // Reposition instantly (no animation) on resize, since item widths/offsets
+    // can shift at different breakpoints.
+    function snapInstant() {
+      const toX  = getFsTarget(current);
+      const indX = getIndTarget();
+      filmstripEl.classList.remove('sliding');
+      indicatorEl.classList.remove('moving');
+      filmstripEl.style.transform = `translateX(${toX}px)`;
+      indicatorEl.style.transform = `translateX(${indX}px) rotate(45deg) scale(1)`;
+      fsOffset  = toX;
+      indOffset = indX;
+    }
+    window.addEventListener('load', snapInstant);
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(snapInstant, 120);
+    });
+
+    // Manual swipe support (touch) since native scrolling was removed in
+    // favor of the keyframe-driven slide.
+    let touchStartX = null, touchStartY = null, touchLocked = false;
+    outerEl.addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchLocked = false;
+    }, { passive: true });
+    outerEl.addEventListener('touchend', e => {
+      if (touchStartX === null) return;
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+        filmstripStep(dx < 0 ? 1 : -1);
+      }
+      touchStartX = null;
+    }, { passive: true });
+
+    /* ── PDF thumbnails: render page 1 of each collection into its
+       filmstrip canvas. The loaded pdfjs document is cached so opening
+       the modal afterwards doesn't re-download the file. ── */
+    function getPdfDoc(i) {
+      if (pdfDocCache[i]) return pdfDocCache[i];
+      const task = pdfjsLib.getDocument(encodeURI(collections[i].file));
+      pdfDocCache[i] = task.promise;
+      return pdfDocCache[i];
+    }
+
+    function renderThumb(i) {
+      const item = filmstripEl.children[i];
+      getPdfDoc(i)
+        .then(pdf => pdf.getPage(1))
+        .then(page => {
+          const targetHeight = 420 * (window.devicePixelRatio || 1);
+          const base   = page.getViewport({ scale: 1 });
+          const scale  = targetHeight / base.height;
+          const viewport = page.getViewport({ scale });
+          const canvas = item.querySelector('canvas');
+          canvas.width  = viewport.width;
+          canvas.height = viewport.height;
+          return page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+        })
+        .then(() => {
+          const spinner = item.querySelector('.pdf-thumb-spinner');
+          if (spinner) spinner.remove();
+        })
+        .catch(err => {
+          console.error('No se pudo cargar el PDF de la colección:', collections[i].file, err);
+          const spinner = item.querySelector('.pdf-thumb-spinner');
+          if (spinner) spinner.textContent = 'No se pudo cargar';
+        });
+    }
+    collections.forEach((col, i) => renderThumb(i));
+
+    /* ── PDF viewer modal: full multi-page navigation, zoom, download ── */
+    const pdfModalEl     = document.getElementById('pdf-modal');
+    const pdfCanvas      = document.getElementById('pdf-modal-canvas');
+    const pdfLoadingEl   = document.getElementById('pdf-modal-loading');
+    const pdfTitleEl     = document.getElementById('pdf-modal-title');
+    const pdfPageLabelEl = document.getElementById('pdf-page-label');
+    const pdfZoomLabelEl = document.getElementById('pdf-zoom-label');
+    const pdfPrevBtn     = document.getElementById('pdf-prev-btn');
+    const pdfNextBtn     = document.getElementById('pdf-next-btn');
+    const pdfDownloadEl  = document.getElementById('pdf-download-link');
+
+    const PDF_ZOOM_MIN = 0.5, PDF_ZOOM_MAX = 3, PDF_ZOOM_STEP = 0.25;
+    let pdfModalIndex   = 0;
+    let pdfModalDoc     = null;
+    let pdfModalPage    = 1;
+    let pdfModalPages   = 1;
+    let pdfModalScale   = 1;
+    let pdfRenderToken  = 0; // guards against out-of-order renders when paging fast
+
+    function openPdfModal(i) {
+      pdfModalIndex = i;
+      pdfModalPage  = 1;
+      pdfModalScale = 1;
+      pdfZoomLabelEl.textContent = '100%';
+      pdfTitleEl.textContent = collections[i].title;
+
+      const fileUrl = encodeURI(collections[i].file);
+      pdfDownloadEl.href = fileUrl;
+      pdfDownloadEl.setAttribute('download', collections[i].title + '.pdf');
+
+      pdfCanvas.style.display = 'none';
+      pdfLoadingEl.style.display = 'block';
+      pdfLoadingEl.textContent = 'Cargando…';
+
+      pdfModalEl.classList.add('open');
+      document.body.style.overflow = 'hidden';
+
+      getPdfDoc(i).then(pdf => {
+        pdfModalDoc   = pdf;
+        pdfModalPages = pdf.numPages;
+        renderPdfModalPage();
+      }).catch(err => {
+        console.error('No se pudo abrir el PDF:', collections[i].file, err);
+        pdfLoadingEl.textContent = 'No se pudo cargar este PDF.';
+      });
+    }
+
+    function renderPdfModalPage() {
+      if (!pdfModalDoc) return;
+      const token = ++pdfRenderToken;
+      pdfPageLabelEl.textContent = pdfModalPage + ' / ' + pdfModalPages;
+      pdfPrevBtn.disabled = pdfModalPage <= 1;
+      pdfNextBtn.disabled = pdfModalPage >= pdfModalPages;
+
+      pdfModalDoc.getPage(pdfModalPage).then(page => {
+        if (token !== pdfRenderToken) return; // a newer page request superseded this one
+        const dpr = window.devicePixelRatio || 1;
+        const viewport = page.getViewport({ scale: pdfModalScale * dpr });
+        pdfCanvas.width  = viewport.width;
+        pdfCanvas.height = viewport.height;
+        pdfCanvas.style.width  = (viewport.width / dpr) + 'px';
+        pdfCanvas.style.height = (viewport.height / dpr) + 'px';
+
+        return page.render({ canvasContext: pdfCanvas.getContext('2d'), viewport }).promise;
+      }).then(() => {
+        if (token !== pdfRenderToken) return;
+        pdfLoadingEl.style.display = 'none';
+        pdfCanvas.style.display = 'block';
+      }).catch(err => {
+        console.error('No se pudo renderizar la página', pdfModalPage, err);
+      });
+    }
+
+    function pdfNextPage() {
+      if (pdfModalPage < pdfModalPages) { pdfModalPage++; renderPdfModalPage(); }
+    }
+    function pdfPrevPage() {
+      if (pdfModalPage > 1) { pdfModalPage--; renderPdfModalPage(); }
+    }
+    function pdfZoom(dir) {
+      pdfModalScale = Math.min(PDF_ZOOM_MAX, Math.max(PDF_ZOOM_MIN, pdfModalScale + dir * PDF_ZOOM_STEP));
+      pdfZoomLabelEl.textContent = Math.round(pdfModalScale * 100) + '%';
+      renderPdfModalPage();
+    }
+
+    function closePdfModal() {
+      pdfModalEl.classList.remove('open');
+      document.body.style.overflow = '';
+      pdfModalDoc = null;
+    }
+
+    function handlePdfModalClick(e) {
+      if (e.target === pdfModalEl) closePdfModal();
+    }
+
+    document.addEventListener('keydown', e => {
+      if (!pdfModalEl.classList.contains('open')) return;
+      if (e.key === 'Escape')     closePdfModal();
+      if (e.key === 'ArrowRight') pdfNextPage();
+      if (e.key === 'ArrowLeft')  pdfPrevPage();
+    });
+
+    function toggleMenu(btn) {
+      const drawer = document.getElementById('nav-drawer-fig');
+      const open   = drawer.classList.toggle('open');
+      btn.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open);
+      btn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+    }
+    function closeMenu() {
+      const drawer = document.getElementById('nav-drawer-fig');
+      const btn    = document.querySelector('.nav-hamburger');
+      drawer.classList.remove('open');
+      btn.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-label', 'Abrir menú');
+    }
+  </script>
+
+</body>
+</html>

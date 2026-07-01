@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <style>
     /* ─── Reset ─── */
@@ -826,6 +827,19 @@
       transform: scale(1.012);
       box-shadow: 0 12px 36px rgba(180,80,130,0.18);
     }
+    .carousel-mosaic canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 14px;
+      box-shadow: var(--shadow-card);
+      background: var(--pink-light);
+      transition: transform 0.35s ease, box-shadow 0.3s ease;
+    }
+    .carousel-mosaic canvas:hover {
+      transform: scale(1.012);
+      box-shadow: 0 12px 36px rgba(180,80,130,0.18);
+    }
     .carousel-mosaic--empty {
       height: 200px;
       border-radius: 14px;
@@ -1421,7 +1435,7 @@
           <div class="carousel-timeline__line"></div>
           <button class="carousel-timeline__diamond" data-index="1" onclick="goTo(1)" aria-label="Fichas Técnicas"></button>
           <div class="carousel-timeline__line"></div>
-          <button class="carousel-timeline__diamond" data-index="2" onclick="goTo(2)" aria-label="Trabajos Análogos"></button>
+          <button class="carousel-timeline__diamond" data-index="2" onclick="goTo(2)" aria-label="Colecciones"></button>
           <div class="carousel-timeline__line"></div>
           <!-- Traveling indicator -->
           <div class="carousel-timeline__indicator" id="c-indicator"></div>
@@ -1507,6 +1521,37 @@
     /* ─ Carrusel ─ */
     const PLACEHOLDER = 'https://i.imgur.com/n2Jwp9F.png';
 
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    const pdfCoverCache = {}; // file url -> loaded pdfjs document, reused between re-renders
+
+    // Renders page 1 of each given PDF into the <canvas data-index="i"> elements
+    // just inserted into #c-mosaic, as a live cover thumbnail (same approach
+    // used on the Colecciones page).
+    function renderPdfCovers(files) {
+      const mosaic = document.getElementById('c-mosaic');
+      files.forEach((file, i) => {
+        const canvas = mosaic.querySelector(`canvas[data-index="${i}"]`);
+        if (!canvas) return;
+        const url = encodeURI(file);
+        const docPromise = pdfCoverCache[url] || (pdfCoverCache[url] = pdfjsLib.getDocument(url).promise);
+        docPromise
+          .then(pdf => pdf.getPage(1))
+          .then(page => {
+            const dpr = window.devicePixelRatio || 1;
+            const base = page.getViewport({ scale: 1 });
+            // Target roughly the mosaic tile's rendered height at native resolution.
+            const scale = (320 * dpr) / base.height;
+            const viewport = page.getViewport({ scale });
+            canvas.width  = viewport.width;
+            canvas.height = viewport.height;
+            return page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+          })
+          .catch(err => console.error('No se pudo renderizar la portada del PDF:', file, err));
+      });
+    }
+
     const slides = [
       {
         title: 'FIGURINES DE MODA',
@@ -1520,14 +1565,21 @@
       {
         title: 'FICHAS TÉCNICAS',
         desc:  'Documentación técnica de prendas: patrones, especificaciones de construcción y detalle de materiales. El puente entre el diseño y la producción.',
-        btn:   { text: 'PRÓXIMAMENTE', href: '#', soon: true },
-        images: []
+        btn:   { text: 'LEER MÁS', href: 'https://zatana.cl/fichas_tecnicas', soon: false },
+        images: [
+          'Trabajos/Fichas_Tecnicas/Afterlife-10.webp',
+          'Trabajos/Fichas_Tecnicas/Ficha-Tecnica-like-a-villain-Renata.pdf_20260624_204236_0002.webp',
+        ]
       },
       {
-        title: 'TRABAJOS ANÁLOGOS',
-        desc:  'Obra manual y artesanal: bocetos, collages e intervenciones textiles. El proceso creativo en su forma más directa.',
-        btn:   { text: 'PRÓXIMAMENTE', href: '#', soon: true },
-        images: []
+        title: 'COLECCIONES',
+        desc:  'Recopilación de las principales colecciones desarrolladas durante mi etapa de formación, junto a sus moodboards, procesos creativos y conceptualizaciones.',
+        btn:   { text: 'LEER MÁS', href: 'https://zatana.cl/colecciones', soon: false },
+        images: [],
+        pdfCovers: [
+          'Trabajos/Colecciones/Proyecto de título_compressed.pdf',
+          'Trabajos/Colecciones/Afterlife_compressed.pdf',
+        ]
       }
     ];
 
@@ -1594,7 +1646,13 @@
         btn.className   = 'carousel-leemas' + (s.btn.soon ? ' carousel-leemas--soon' : '');
 
         const mosaic = document.getElementById('c-mosaic');
-        if (s.images.length > 0) {
+        if (s.pdfCovers && s.pdfCovers.length > 0) {
+          mosaic.className = 'carousel-mosaic';
+          mosaic.innerHTML = s.pdfCovers.map((_, i) =>
+            `<canvas data-index="${i}" style="cursor:pointer" onclick="location.href='${s.btn.href}'"></canvas>`
+          ).join('');
+          renderPdfCovers(s.pdfCovers);
+        } else if (s.images.length > 0) {
           mosaic.className = 'carousel-mosaic';
           mosaic.innerHTML = s.images.map((src, i) =>
             `<img src="${src}" data-index="${i}" alt="" loading="lazy"
@@ -1824,7 +1882,7 @@
         <ul class="footer-nav">
           <li><a href="https://zatana.cl/figurines_moda">Figurines</a></li>
           <li><a href="https://zatana.cl/fichas_tecnicas">Fichas</a></li>
-          <li><a href="https://zatana.cl/trabajos_analogos">Análogos</a></li>
+          <li><a href="https://zatana.cl/colecciones">Colecciones</a></li>
           <li><a href="mailto:renatatrujillov@gmail.com">Contacto</a></li>
         </ul>
       </nav>
